@@ -26,6 +26,7 @@ const DEFAULTS = {
   debuggers: {},            // custom debugger paths, e.g. { "netcoredbg": "C:\\tools\\netcoredbg\\netcoredbg.exe" }
   breakOnUncaughtExceptions: true,
   diagShowOnDebug: true,    // open Diagnostic Tools when debugging starts (like Visual Studio)
+  hotReloadBrowser: true,   // Hot Reload of a web app opens the browser (dotnet watch launchBrowser)
   nugetSource: 'https://api.nuget.org/v3/index.json', // package source used by Manage NuGet Packages (v3 feed)
   nugetPrerelease: false,
   updateUrl: '',            // where updates are published: a folder URL with latest.yml (electron-builder "generic")

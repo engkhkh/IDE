@@ -209,6 +209,8 @@ const MENU = [
   ['&Debug', [
     { label: 'Start Debugging', key: 'F5', cmd: 'debugStart' },
     { label: 'Start Without Debugging', key: 'Ctrl+F5', cmd: 'runNoDebug' },
+    { label: 'Start With Hot Reload', key: 'Alt+Shift+F5', cmd: 'hotReloadStart' },
+    { label: 'Apply Code Changes (Hot Reload)', key: 'Alt+F10', cmd: 'hotReloadApply' },
     { label: 'Stop Debugging', key: 'Shift+F5', cmd: 'stop' },
     { label: 'Restart', key: 'Ctrl+Shift+F5', cmd: 'debugRestart' },
     { label: 'Break All', key: 'Ctrl+Alt+Pause', cmd: 'debugPause' },

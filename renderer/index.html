@@ -30,6 +30,7 @@
       <button id="btnRun" class="run" data-cmd="debugStart" title="Start Debugging (F5)">▶ <span id="runLabel">Start</span></button>
       <button id="btnRunNoDebug" class="run-nodebug" data-cmd="runNoDebug" title="Start Without Debugging (Ctrl+F5)">▷</button>
       <button id="btnStop" data-cmd="stop" title="Stop (Shift+F5)" disabled>■</button>
+      <button id="btnHotReload" class="hot-reload" data-cmd="hotReloadApply" title="Hot Reload: start with Hot Reload, or apply code changes (Alt+F10)">🔥</button>
       <button data-cmd="build" title="Build Solution (Ctrl+Shift+B)">🔨 Build</button>
     </div>
     <div id="debugBar" class="tb-group hidden">
@@ -295,6 +296,7 @@
     <span class="tb-spacer"></span>
     <span id="stPr" class="clickable hidden"></span>
     <span id="stCov" class="clickable hidden" title="Code coverage (click for results)"></span>
+    <span id="stHot" class="clickable hidden" title="Hot Reload (click for details)"></span>
     <span id="stUpdate" class="clickable hidden" title="Nova IDE update"></span>
     <span id="stLsp" class="clickable hidden" title="IntelliSense status (click for details)"></span>
     <span id="stBranch" class="clickable hidden" title="Switch branch"></span>
@@ -376,6 +378,7 @@
   <script src="diagnostics.js"></script>
   <script src="profiler.js"></script>
   <script src="heapsnap.js"></script>
+  <script src="hotreload.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

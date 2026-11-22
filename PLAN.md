@@ -172,3 +172,11 @@ renderer/    UI: toolbar, Solution Explorer, Monaco tabs, Output / Error List / 
 - [x] Diagnostic Tools Memory Usage: Objects / Heap Size with diffs; heap view by type with compare, search, hide framework types, go to declaration
 - [x] Fixed: Pause on a .NET program that never stopped (asks the debugger for its threads first)
 - [x] Tests: 3 more unit tests (compressed integers, type lookup, live PDB lines + heap snapshot); 28 end-to-end checks
+
+### Phase 17 — .NET Hot Reload  ✅ (done)
+- [x] Debug > Start With Hot Reload (Alt+Shift+F5) / 🔥 toolbar button: the startup project runs under `dotnet watch --non-interactive` (SDK built-in, no extra tools)
+- [x] Save applies the edit to the running app; Apply Code Changes (Alt+F10) saves all and applies
+- [x] Status bar: ready / applying / applied / no changes / build errors / rude edit (auto restart) / crashed / waiting; popup with recent events
+- [x] Build errors in the Error List (dotnet watch prefix understood), cleared by the next change; Output without terminal color codes
+- [x] Stop ends dotnet watch and the app (process group)
+- [x] Tests: 3 unit tests on real dotnet watch output; 19 end-to-end checks

@@ -751,3 +751,11 @@ body.theme-light .gh-chip.current { color: #fff; }
 .hs-new { color: #e2c08d; font-size: 10px; text-transform: uppercase; margin-left: 4px; }
 .hs-gone td { opacity: .55; text-decoration: line-through; }
 .dg-heap-link { color: var(--accent); }
+
+/* ---------- Phase 17: Hot Reload ---------- */
+#btnHotReload { filter: grayscale(.6); opacity: .8; }
+#btnHotReload.active { filter: none; opacity: 1; background: rgba(226, 120, 60, .18); border-radius: 3px; }
+#stHot { white-space: nowrap; }
+#stHot.hr-applied, #stHot.hr-ready { color: #fff; }
+#stHot.hr-errors, #stHot.hr-crashed { background: rgba(241, 76, 76, .85); padding: 0 6px; border-radius: 2px; }
+#stHot.hr-rude { background: rgba(226, 192, 141, .35); padding: 0 6px; border-radius: 2px; }

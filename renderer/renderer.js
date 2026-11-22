@@ -321,7 +321,9 @@ function ask(title, value = '') {
 }
 
 // ---------------- Output / Errors / Find ----------------
+const ANSI_RE = /\x1b\[[0-9;?]*[A-Za-z]/g;
 function log(text, cls) {
+  text = String(text).replace(ANSI_RE, '');
   const out = $('#panel-output');
   const span = document.createElement('span');
   if (cls) span.className = cls;
@@ -338,7 +340,8 @@ function showPanel(name) {
 
 const ERR_PATTERNS = [
   // MSBuild / C#: C:\x\Program.cs(10,5): error CS1002: ; expected [C:\x\app.csproj]
-  /^\s*(.+?)\((\d+),(\d+)(?:,\d+,\d+)?\):\s*(error|warning)\s+([A-Z]+\d+)\s*:\s*(.+?)(?:\s+\[[^\]]+\])?\s*$/i,
+  // (dotnet watch prefixes its lines with "dotnet watch <emoji> ")
+  /^\s*(?:dotnet watch \S+\s+)?(.+?)\((\d+),(\d+)(?:,\d+,\d+)?\):\s*(error|warning)\s+([A-Z]+\d+)\s*:\s*(.+?)(?:\s+\[[^\]]+\])?\s*$/i,
   // gcc / tsc / dart style: file:line:col: error: msg
   /^\s*(.+?):(\d+):(\d+):?\s*-?\s*(error|warning)\s*([A-Z]*\d*)\s*:?\s*(.+)$/i
 ];

@@ -196,6 +196,16 @@ For anything else, add `.nova/launch.json` in VS Code format (`program`, `args`,
 While stopped: Locals, Watch, Call Stack, Breakpoints and Immediate windows (bottom panel), hover a variable for its value,
 double-click a value in Locals to change it, right-click the margin for conditional breakpoints or Run to Cursor.
 
+## Hot Reload (.NET)
+**Debug > Start With Hot Reload (Alt+Shift+F5)** or the 🔥 toolbar button runs the startup project under `dotnet watch`.
+Edit code while the app runs and save: the change is applied to the running app, no restart.
+**Apply Code Changes (Alt+F10)** (or 🔥 while running) saves all files and applies them.
+- The status bar shows Ready / Applying / Changes applied / Build errors / Rude edit; click it for recent events.
+- Compile errors go to the Error List; the app keeps running the last good code until you fix them.
+- Edits that can't be applied to a running app (rude edits) restart it automatically.
+- Hot Reload runs without the debugger (like Visual Studio's Ctrl+F5 + Hot Reload). Web apps open the browser
+  (turn off "Hot Reload: open the browser for web apps" in Options > Debugging).
+
 ## Diagnostic Tools and Performance Profiler
 When debugging starts, the **Diagnostic Tools** window opens (right side; Debug > Windows > Show Diagnostic Tools, Ctrl+Alt+F2):
 - Events lane: breakpoints, steps and exceptions (red), program output, process start and exit, snapshots
@@ -242,6 +252,7 @@ Memory is private bytes on Windows and resident memory on Linux/macOS.
 | Step Over / Into / Out / Run to Cursor | F10 / F11 / Shift+F11 / Ctrl+F10 |
 | Locals / Watch / Call Stack / Breakpoints / Immediate | Ctrl+Alt+V / W / C / B / I |
 | Diagnostic Tools / Performance Profiler | Ctrl+Alt+F2 / Alt+F2 |
+| Start With Hot Reload / Apply Code Changes | Alt+Shift+F5 / Alt+F10 |
 | Build | Ctrl+Shift+B |
 | Find / Replace / Find in Files | Ctrl+F / Ctrl+H / Ctrl+Shift+F |
 | Go to line | Ctrl+G |
@@ -290,7 +301,7 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   pullrequests.js (Pull Requests window, create dialog, accounts),
                   workitems.js (Work Items window, # suggestions, #123 links),
                   diagnostics.js (Diagnostic Tools window), profiler.js (profiler options, performance report),
-                  heapsnap.js (.NET heap snapshot view)
+                  heapsnap.js (.NET heap snapshot view), hotreload.js (.NET Hot Reload)
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions
 test/             unit tests (npm test)

@@ -24,6 +24,7 @@ const SETTINGS_SCHEMA = [
   { key: 'reloadChangedFiles', label: 'Reload open files changed outside the IDE (if unmodified)', type: 'bool' },
   { group: 'Debugging' },
   { key: 'diagShowOnDebug', label: 'Show Diagnostic Tools when debugging starts', type: 'bool' },
+  { key: 'hotReloadBrowser', label: 'Hot Reload: open the browser for web apps', type: 'bool' },
   { group: 'Git' },
   { key: 'gitInlineBlame', label: 'Show who last changed the current line (inline blame)', type: 'bool' },
   { group: 'Terminal' },
