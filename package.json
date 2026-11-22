@@ -1,0 +1,115 @@
+{
+  "name": "nova-ide",
+  "version": "0.16.0",
+  "description": "Nova IDE - a Visual Studio style IDE for .NET, built with Electron and Monaco",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node --test test/*.test.js",
+    "dist": "electron-builder --win --x64 --publish never",
+    "dist:dir": "electron-builder --dir --publish never"
+  },
+  "author": {
+    "name": "Nova IDE"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "26.18.0"
+  },
+  "dependencies": {
+    "@lydell/node-pty": "1.2.0-beta.18",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/xterm": "6.0.0",
+    "monaco-editor": "0.52.2",
+    "pyright": "1.1.414",
+    "typescript": "5.9.3",
+    "typescript-language-server": "4.4.0",
+    "electron-updater": "6.8.11"
+  },
+  "build": {
+    "appId": "com.novaide.app",
+    "productName": "Nova IDE",
+    "executableName": "NovaIDE",
+    "copyright": "Copyright (c) 2026 Nova IDE",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!test/**",
+      "!dist/**",
+      "!scripts/**",
+      "!*.bat",
+      "!build/*.nsh",
+      "!**/*.map",
+      "!**/*.md",
+      "README.md",
+      "!node_modules/**/{test,tests,__tests__,example,examples,docs}/**",
+      "node_modules/pyright/dist/typeshed-fallback/**"
+    ],
+    "extraResources": [
+      {
+        "from": "samples",
+        "to": "samples"
+      },
+      {
+        "from": "node_modules/typescript/lib",
+        "to": "app.asar.unpacked/node_modules/typescript/lib",
+        "filter": [
+          "*.d.ts"
+        ]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/@lydell/**",
+      "node_modules/typescript/**",
+      "node_modules/typescript-language-server/**",
+      "node_modules/pyright/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "legalTrademarks": "Nova IDE"
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "icon": "build/icon.png",
+      "category": "Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nova IDE",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "include": "build/installer.nsh",
+      "artifactName": "NovaIDE-Setup-${version}.exe",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://updates.invalid/nova-ide/"
+      }
+    ]
+  }
+}

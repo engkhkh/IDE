@@ -1,0 +1,8 @@
+{
+  "name": "word-count",
+  "displayName": "Word Count",
+  "version": "1.0.0",
+  "description": "Shows the number of words and lines of the file (or the selection) in the status bar.",
+  "author": "Nova IDE samples",
+  "main": "extension.js"
+}

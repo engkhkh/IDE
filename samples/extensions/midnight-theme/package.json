@@ -1,0 +1,8 @@
+{
+  "name": "midnight-theme",
+  "displayName": "Midnight Theme",
+  "version": "1.0.0",
+  "description": "A deep blue editor color theme. Run \"Theme: Midnight\" from the Command Palette (Ctrl+Shift+P); \"Theme: Default\" switches back.",
+  "author": "Nova IDE samples",
+  "main": "extension.js"
+}

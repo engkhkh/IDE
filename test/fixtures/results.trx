@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="828d839c-6ccf-498e-bbe3-e7eab54031f2" name="@vm 2026-11-17 08:44:04" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-17T08:44:04.3837512+03:00" queuing="2026-11-17T08:44:04.3837513+03:00" start="2026-11-17T08:44:03.6127462+03:00" finish="2026-11-17T08:44:04.3997365+03:00" />
+  <TestSettings name="default" id="f6b6e87f-5c35-4e65-a272-0140f3f0ca59">
+    <Deployment runDeploymentRoot="_vm_2026-11-17_08_44_04" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="5a82fa57-5203-424f-84dc-abcb4b0eb52e" testId="6df2d34b-11fd-1138-ff64-7b3d2867a5c2" testName="Calc.Tests.CalculatorTests.Add_Theory(2, 3, 6)" computerName="vm" duration="00:00:00.0004248" startTime="2026-11-17T08:44:04.1456653+03:00" endTime="2026-11-17T08:44:04.1460929+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5a82fa57-5203-424f-84dc-abcb4b0eb52e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure
+Expected: 6
+Actual:   5</Message>
+          <StackTrace>   at Calc.Tests.CalculatorTests.Add_Theory(Int32 a, Int32 b, Int32 expected) in /home/claude/work/testfw/TestDemo/Calc.Tests/CalculatorTests.cs:line 38
+   at InvokeStub_CalculatorTests.Add_Theory(Object, Span`1)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c288ea69-54b5-49ca-bcd8-d8f4376ace43" testId="f4289a31-a5c0-61f0-19ca-820788da8047" testName="Calc.Tests.CalculatorTests.Add_TwoNumbers_ReturnsSum" computerName="vm" duration="00:00:00.0040813" startTime="2026-11-17T08:44:04.1223311+03:00" endTime="2026-11-17T08:44:04.1264740+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c288ea69-54b5-49ca-bcd8-d8f4376ace43" />
+    <UnitTestResult executionId="0792b8b7-df81-4a13-b421-d8d0f6f484fe" testId="dd93b75d-7f9d-2409-e318-2864a6179538" testName="Calc.Tests.CalculatorTests.Divide_ByZero_Throws" computerName="vm" duration="00:00:00.0027744" startTime="2026-11-17T08:44:04.1302217+03:00" endTime="2026-11-17T08:44:04.1330063+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0792b8b7-df81-4a13-b421-d8d0f6f484fe" />
+    <UnitTestResult executionId="785ad270-9ce1-4ef1-9d5c-57234a4ac422" testId="8008bf1f-541e-2682-fb28-e99b0fdef538" testName="Calc.Tests.CalculatorTests.Add_Theory(1, 1, 2)" computerName="vm" duration="00:00:00.0002184" startTime="2026-11-17T08:44:04.1451072+03:00" endTime="2026-11-17T08:44:04.1453313+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="785ad270-9ce1-4ef1-9d5c-57234a4ac422" />
+    <UnitTestResult executionId="163e868f-9475-4362-8242-bec2c41ea7f4" testId="4612e195-036a-a70b-8e29-502d456e427b" testName="Calc.Tests.CalculatorTests.Async_Test_Completes" computerName="vm" duration="00:00:00.0131978" startTime="2026-11-17T08:44:04.1461798+03:00" endTime="2026-11-17T08:44:04.1593816+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="163e868f-9475-4362-8242-bec2c41ea7f4" />
+    <UnitTestResult executionId="50592f09-dd80-43ce-ba7f-58680fa2e035" testId="73c9c523-9369-47e5-5b20-5bebbc7ea6cf" testName="Calc.Tests.Text.TextTests.Upper_Converts" computerName="vm" duration="00:00:00.0002698" startTime="2026-11-17T08:44:04.1595027+03:00" endTime="2026-11-17T08:44:04.1597779+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="50592f09-dd80-43ce-ba7f-58680fa2e035" />
+    <UnitTestResult executionId="1622dfaa-21e3-46f0-bd05-2d5e1d880c1e" testId="fccaa7fa-8dba-eb9b-ab13-e38e00d116d3" testName="Calc.Tests.CalculatorTests.Power_NotImplemented" computerName="vm" duration="00:00:00.0001649" startTime="2026-11-17T08:44:04.1445574+03:00" endTime="2026-11-17T08:44:04.1447274+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1622dfaa-21e3-46f0-bd05-2d5e1d880c1e">
+      <Output>
+        <TextMessages>
+          <Message>Power is not implemented yet</Message>
+        </TextMessages>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2c5f6623-90eb-4b39-9bf2-46bd01fa6192" testId="689ea6de-3ec5-1439-b984-45fb6a21006a" testName="Calc.Tests.CalculatorTests.Add_Theory(2, 2, 4)" computerName="vm" duration="00:00:00.0002460" startTime="2026-11-17T08:44:04.1453786+03:00" endTime="2026-11-17T08:44:04.1456284+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2c5f6623-90eb-4b39-9bf2-46bd01fa6192" />
+    <UnitTestResult executionId="566f1da2-ec2b-4037-b729-9bdfeff98198" testId="698fde78-972a-8cf3-2a36-b2029b25a972" testName="Calc.Tests.CalculatorTests.Multiply_TwoNumbers_ReturnsProduct" computerName="vm" duration="00:00:00.0109715" startTime="2026-11-17T08:44:04.1333823+03:00" endTime="2026-11-17T08:44:04.1443609+03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="566f1da2-ec2b-4037-b729-9bdfeff98198">
+      <Output>
+        <StdOut>Multiplying 3 x 4</StdOut>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure
+Expected: 12
+Actual:   13</Message>
+          <StackTrace>   at Calc.Tests.CalculatorTests.Multiply_TwoNumbers_ReturnsProduct() in /home/claude/work/testfw/TestDemo/Calc.Tests/CalculatorTests.cs:line 24</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Calc.Tests.CalculatorTests.Add_Theory(1, 1, 2)" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="8008bf1f-541e-2682-fb28-e99b0fdef538">
+      <Execution id="785ad270-9ce1-4ef1-9d5c-57234a4ac422" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Add_Theory" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Async_Test_Completes" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="4612e195-036a-a70b-8e29-502d456e427b">
+      <Execution id="163e868f-9475-4362-8242-bec2c41ea7f4" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Async_Test_Completes" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Multiply_TwoNumbers_ReturnsProduct" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="698fde78-972a-8cf3-2a36-b2029b25a972">
+      <Execution id="566f1da2-ec2b-4037-b729-9bdfeff98198" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Multiply_TwoNumbers_ReturnsProduct" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.Text.TextTests.Upper_Converts" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="73c9c523-9369-47e5-5b20-5bebbc7ea6cf">
+      <Execution id="50592f09-dd80-43ce-ba7f-58680fa2e035" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.Text.TextTests" name="Upper_Converts" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Add_Theory(2, 3, 6)" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="6df2d34b-11fd-1138-ff64-7b3d2867a5c2">
+      <Execution id="5a82fa57-5203-424f-84dc-abcb4b0eb52e" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Add_Theory" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Add_TwoNumbers_ReturnsSum" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="f4289a31-a5c0-61f0-19ca-820788da8047">
+      <Execution id="c288ea69-54b5-49ca-bcd8-d8f4376ace43" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Add_TwoNumbers_ReturnsSum" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Power_NotImplemented" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="fccaa7fa-8dba-eb9b-ab13-e38e00d116d3">
+      <Execution id="1622dfaa-21e3-46f0-bd05-2d5e1d880c1e" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Power_NotImplemented" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Add_Theory(2, 2, 4)" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="689ea6de-3ec5-1439-b984-45fb6a21006a">
+      <Execution id="2c5f6623-90eb-4b39-9bf2-46bd01fa6192" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Add_Theory" />
+    </UnitTest>
+    <UnitTest name="Calc.Tests.CalculatorTests.Divide_ByZero_Throws" storage="/home/claude/work/testfw/testdemo/calc.tests/bin/debug/net8.0/calc.tests.dll" id="dd93b75d-7f9d-2409-e318-2864a6179538">
+      <Execution id="0792b8b7-df81-4a13-b421-d8d0f6f484fe" />
+      <TestMethod codeBase="/home/claude/work/testfw/TestDemo/Calc.Tests/bin/Debug/net8.0/Calc.Tests.dll" adapterTypeName="executor://minixunit/v1" className="Calc.Tests.CalculatorTests" name="Divide_ByZero_Throws" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="6df2d34b-11fd-1138-ff64-7b3d2867a5c2" executionId="5a82fa57-5203-424f-84dc-abcb4b0eb52e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f4289a31-a5c0-61f0-19ca-820788da8047" executionId="c288ea69-54b5-49ca-bcd8-d8f4376ace43" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd93b75d-7f9d-2409-e318-2864a6179538" executionId="0792b8b7-df81-4a13-b421-d8d0f6f484fe" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8008bf1f-541e-2682-fb28-e99b0fdef538" executionId="785ad270-9ce1-4ef1-9d5c-57234a4ac422" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4612e195-036a-a70b-8e29-502d456e427b" executionId="163e868f-9475-4362-8242-bec2c41ea7f4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="73c9c523-9369-47e5-5b20-5bebbc7ea6cf" executionId="50592f09-dd80-43ce-ba7f-58680fa2e035" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fccaa7fa-8dba-eb9b-ab13-e38e00d116d3" executionId="1622dfaa-21e3-46f0-bd05-2d5e1d880c1e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="689ea6de-3ec5-1439-b984-45fb6a21006a" executionId="2c5f6623-90eb-4b39-9bf2-46bd01fa6192" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="698fde78-972a-8cf3-2a36-b2029b25a972" executionId="566f1da2-ec2b-4037-b729-9bdfeff98198" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="9" executed="8" passed="6" failed="2" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>Test 'Calc.Tests.CalculatorTests.Power_NotImplemented' was skipped in the test run.
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

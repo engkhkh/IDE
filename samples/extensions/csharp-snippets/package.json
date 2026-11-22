@@ -1,0 +1,8 @@
+{
+  "name": "csharp-snippets",
+  "displayName": "C# Snippets",
+  "version": "1.0.0",
+  "description": "Visual Studio style C# snippets: prop, propfull, ctor, cw, for, foreach, if, try, class, interface, record, test and more. Type the name and press Tab or Enter.",
+  "author": "Nova IDE samples",
+  "main": "extension.js"
+}

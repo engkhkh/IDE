@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nova IDE</title>
+  <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-dark">
+  <!-- Toolbar -->
+  <header id="toolbar">
+    <div class="brand"><img class="logo-img" src="assets/icon.png" alt="" /> Nova IDE</div>
+    <div class="tb-group">
+      <button data-cmd="openFolder" title="Open Folder (Ctrl+Shift+O)">📂</button>
+      <button data-cmd="save" title="Save (Ctrl+S)">💾</button>
+      <button data-cmd="saveAll" title="Save All (Ctrl+Shift+S)">🗂️</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button data-cmd="undo" title="Undo (Ctrl+Z)">↶</button>
+      <button data-cmd="redo" title="Redo (Ctrl+Y)">↷</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <select id="config" title="Solution Configuration">
+        <option>Debug</option>
+        <option>Release</option>
+      </select>
+      <select id="startupSelect" class="hidden" title="Startup project"></select>
+      <button id="btnRun" class="run" data-cmd="debugStart" title="Start Debugging (F5)">▶ <span id="runLabel">Start</span></button>
+      <button id="btnRunNoDebug" class="run-nodebug" data-cmd="runNoDebug" title="Start Without Debugging (Ctrl+F5)">▷</button>
+      <button id="btnStop" data-cmd="stop" title="Stop (Shift+F5)" disabled>■</button>
+      <button data-cmd="build" title="Build Solution (Ctrl+Shift+B)">🔨 Build</button>
+    </div>
+    <div id="debugBar" class="tb-group hidden">
+      <div class="tb-sep"></div>
+      <button id="dbgContinue" data-cmd="debugContinue" title="Continue (F5)">▶</button>
+      <button id="dbgPause" data-cmd="debugPause" title="Break All (Ctrl+Alt+Break)">⏸</button>
+      <button data-cmd="stop" title="Stop Debugging (Shift+F5)" class="dbg-stop">⏹</button>
+      <button data-cmd="debugRestart" title="Restart (Ctrl+Shift+F5)">⟲</button>
+      <div class="tb-sep"></div>
+      <button id="dbgStepInto" data-cmd="debugStepInto" title="Step Into (F11)">⤓</button>
+      <button id="dbgStepOver" data-cmd="debugStepOver" title="Step Over (F10)">⤼</button>
+      <button id="dbgStepOut" data-cmd="debugStepOut" title="Step Out (Shift+F11)">⤒</button>
+      <select id="dbgThread" title="Thread"></select>
+    </div>
+    <div class="tb-spacer"></div>
+    <div id="projectBadge" class="badge">No project</div>
+  </header>
+
+  <!-- Main workspace -->
+  <main id="workspace">
+    <section id="editorArea">
+      <div id="tabs"></div>
+      <div id="editorHost">
+        <div id="welcome">
+          <h1>Nova IDE</h1>
+          <p>Get started</p>
+          <button data-cmd="openFolder">Open a local folder</button>
+          <button data-cmd="openFile">Open a file</button>
+          <div id="recent"></div>
+        </div>
+        <div id="editor"></div>
+        <div id="historyView" class="hidden">
+          <div class="gh-bar">
+            <b id="ghTitle">Git Repository</b>
+            <select id="ghRef" title="Branch"></select>
+            <input id="ghSearch" type="search" placeholder="Search message, author or commit ID" spellcheck="false">
+            <span id="ghStatus" class="dlg-desc"></span>
+            <span class="tb-spacer"></span>
+            <button id="ghFetch" title="Fetch">⤓ Fetch</button>
+            <button id="ghRefresh" title="Refresh">⟳</button>
+            <button id="ghClose" title="Close (Esc)">✕</button>
+          </div>
+          <div class="gh-body">
+            <div id="ghBranches" class="gh-branches"></div>
+            <div class="gh-main">
+              <div class="gh-head"><span class="gh-c-graph">Graph</span><span class="gh-c-msg">Message</span><span class="gh-c-author">Author</span><span class="gh-c-date">Date</span><span class="gh-c-id">ID</span></div>
+              <div id="ghList" class="gh-list" tabindex="0"><div id="ghInner" class="gh-inner"></div><div id="ghEmpty" class="gh-empty hidden"></div></div>
+            </div>
+            <div id="ghSplit" class="splitter-v gh-split"></div>
+            <div id="ghDetails" class="gh-details"></div>
+          </div>
+        </div>
+        <div id="prView" class="hidden" tabindex="-1">
+          <div class="gh-bar">
+            <b id="prTitle">Pull Requests</b>
+            <select id="prFilter" title="Show"><option value="open">Open</option><option value="merged">Merged</option><option value="closed">Closed</option><option value="all">All</option></select>
+            <input id="prSearch" type="search" placeholder="Filter by title, number, author or branch" spellcheck="false">
+            <span class="tb-spacer"></span>
+            <button id="prNew" title="New Pull Request">+ New Pull Request</button>
+            <button id="prWeb" title="Open the pull request list on the web">Open in Browser</button>
+            <button id="prRefresh" title="Refresh">⟳</button>
+            <button id="prClose" title="Close (Esc)">✕</button>
+          </div>
+          <div class="pr-split"><div id="prList" class="pr-list"></div><div id="prDetails" class="pr-details"></div></div>
+        </div>
+        <div id="wiView" class="hidden" tabindex="-1">
+          <div class="gh-bar">
+            <b id="wiTitle">Work Items</b>
+            <select id="wiQuery" title="Query"></select>
+            <input id="wiSearch" type="search" placeholder="Search title or #id" spellcheck="false">
+            <span class="tb-spacer"></span>
+            <button id="wiNew" title="New Work Item">+ New Work Item</button>
+            <button id="wiWeb" title="Open the work items on the web">Open in Browser</button>
+            <button id="wiRefresh" title="Refresh">⟳</button>
+            <button id="wiClose" title="Close (Esc)">✕</button>
+          </div>
+          <div class="pr-split"><div id="wiList" class="pr-list"></div><div id="wiDetails" class="pr-details"></div></div>
+        </div>
+        <div id="hsView" class="hidden" tabindex="-1">
+          <div class="gh-bar">
+            <b id="hsTitle">Heap Snapshot</b>
+            <label class="pf-check">Compare with <select id="hsBase"></select></label>
+            <input id="hsSearch" type="search" placeholder="Search types" spellcheck="false">
+            <label class="pf-check" title="Hide System.* and Microsoft.* types"><input id="hsMine" type="checkbox"> Hide framework types</label>
+            <span class="tb-spacer"></span>
+            <button id="hsClose" title="Close (Esc)">✕</button>
+          </div>
+          <div id="hsInfo" class="pf-info"></div>
+          <div id="hsBody" class="pf-body"></div>
+        </div>
+        <div id="pfView" class="hidden" tabindex="-1">
+          <div class="gh-bar">
+            <b id="pfTitle">Performance Report</b>
+            <div id="pfTabs" class="pf-tabs"><button data-tab="cpu" class="active">CPU Usage</button><button data-tab="alloc">Allocations</button></div>
+            <div id="pfViews" class="pf-tabs"><button data-view="functions" class="active">Functions</button><button data-view="tree">Call Tree</button><button data-view="callers">Caller/Callee</button></div>
+            <input id="pfSearch" type="search" placeholder="Search functions" spellcheck="false">
+            <label class="pf-check" title="Group framework and library code as [External Code]"><input id="pfJmc" type="checkbox" checked> Just My Code</label>
+            <span class="tb-spacer"></span>
+            <button id="pfHints" title="Show the time per line in the editor">⏱ Hot Lines</button>
+            <button id="pfClose" title="Close (Esc)">✕</button>
+          </div>
+          <div id="pfInfo" class="pf-info"></div>
+          <div id="pfBody" class="pf-body"></div>
+        </div>
+        <div id="mergeView" class="hidden">
+          <div class="mg-bar">
+            <b id="mgTitle">Merging</b>
+            <span id="mgCount" class="mg-count"></span>
+            <span class="tb-spacer"></span>
+            <button id="mgPrev" title="Previous conflict">▲</button>
+            <button id="mgNext" title="Next conflict">▼</button>
+            <button id="mgTakeIncoming" title="Use the incoming side for every conflict">Take Incoming</button>
+            <button id="mgTakeCurrent" title="Use the current side for every conflict">Take Current</button>
+            <button id="mgAccept" class="primary" title="Save the result and mark the file as resolved">Accept Merge</button>
+            <button id="mgClose" title="Close">✕</button>
+          </div>
+          <div class="mg-top">
+            <div class="mg-pane"><div class="mg-head mg-head-inc" id="mgIncomingTitle">Incoming</div><div id="mgIncoming" class="mg-ed"></div></div>
+            <div class="mg-pane"><div class="mg-head mg-head-cur" id="mgCurrentTitle">Current</div><div id="mgCurrent" class="mg-ed"></div></div>
+          </div>
+          <div class="mg-bottom"><div class="mg-head mg-head-res" id="mgResultTitle">Result</div><div id="mgResult" class="mg-ed"></div></div>
+        </div>
+        <div id="diffView" class="hidden">
+          <div class="diff-bar">
+            <span id="diffTitle"></span>
+            <span class="tb-spacer"></span>
+            <button id="diffInline" title="Toggle inline / side-by-side">⇆ Inline</button>
+            <button id="diffOpen" title="Open file">Open File</button>
+            <button id="diffClose" title="Close diff">✕</button>
+          </div>
+          <div id="diffEditor"></div>
+        </div>
+      </div>
+    </section>
+    <div id="vSplit" class="splitter-v"></div>
+    <aside id="explorer">
+      <div id="sideTabs">
+        <button data-side="solution" class="active">Solution Explorer</button>
+        <button data-side="git">Git Changes <span id="gitCount" class="count hidden">0</span></button>
+        <button data-side="tests">Test Explorer <span id="testCount" class="count failed hidden">0</span></button>
+        <button data-side="diag">Diagnostic Tools <span id="diagDot" class="count rec hidden">●</span></button>
+      </div>
+      <div id="side-diag" class="side-panel">
+        <div class="dg-head">
+          <span id="dgTitle" class="dg-title">Diagnostic Tools</span>
+          <span class="tb-spacer"></span>
+          <button id="dgSnapshot" title="Take Snapshot (memory now)">📷</button>
+          <button id="dgStop" title="Stop Collection" class="hidden">■</button>
+          <button id="dgProfile" title="Performance Profiler (Alt+F2): run the startup project without the debugger and record CPU and memory">⏱</button>
+        </div>
+        <div id="dgCharts" class="dg-charts">
+          <div class="dg-label">Events</div><canvas id="dgEvents" height="22"></canvas>
+          <div class="dg-label">Process Memory (MB) <span id="dgMemNow" class="dg-now"></span></div><canvas id="dgMem" height="90"></canvas>
+          <div class="dg-label">CPU (% of all processors) <span id="dgCpuNow" class="dg-now"></span></div><canvas id="dgCpu" height="70"></canvas>
+          <div id="dgAxis" class="dg-axis"></div>
+          <div id="dgTip" class="dg-tip hidden"></div>
+        </div>
+        <div id="dgTabs" class="dg-tabs"><button data-tab="summary" class="active">Summary</button><button data-tab="events">Events</button><button data-tab="memory">Memory Usage</button><button data-tab="cpu">CPU Usage</button></div>
+        <div id="dgBody" class="dg-body"></div>
+      </div>
+      <div id="side-solution" class="side-panel active">
+        <div class="panel-title">
+          <input id="treeFilter" placeholder="Search Solution Explorer (Ctrl+;)" spellcheck="false" />
+          <button id="btnSlnView" class="hidden" title="Switch to Folder View">📁</button>
+          <button id="btnCollapse" title="Collapse All">⊟</button>
+          <button id="btnRefresh" title="Refresh">⟳</button>
+        </div>
+        <div id="tree"></div>
+      </div>
+      <div id="side-tests" class="side-panel">
+        <div class="tx-toolbar">
+          <button id="txRunAll" title="Run All Tests (Ctrl+R, A)">▶▶</button>
+          <button id="txRun" title="Run selected">▶</button>
+          <button id="txRunFailed" title="Run Failed Tests (Ctrl+R, F)" class="tx-failed">✖▶</button>
+          <button id="txDebug" title="Debug selected">🐞</button>
+          <button id="txCover" title="Analyze Code Coverage for selected tests">▦</button>
+          <button id="txCancel" title="Cancel">■</button>
+          <span class="tb-spacer"></span>
+          <button id="txRefresh" title="Refresh">⟳</button>
+        </div>
+        <div class="tx-toolbar">
+          <select id="txFilter" title="Show">
+            <option value="all">All</option><option value="failed">Failed</option><option value="passed">Passed</option><option value="skipped">Skipped</option><option value="notrun">Not Run</option>
+          </select>
+          <input id="txSearch" placeholder="Search tests" spellcheck="false" />
+        </div>
+        <div id="txSummary" class="tx-summary"></div>
+        <div class="tx-progress"><div id="txBar"></div></div>
+        <div id="txTree"></div>
+        <div class="splitter-h tx-split"></div>
+        <div id="txDetails"></div>
+      </div>
+      <div id="side-git" class="side-panel">
+        <div id="gitPanel"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom panel -->
+  <div id="hSplit" class="splitter-h"></div>
+  <section id="bottom">
+    <div id="bottomTabs">
+      <button data-panel="output" class="active">Output</button>
+      <button data-panel="errors">Error List <span id="errCount" class="count">0</span></button>
+      <button data-panel="find">Find Results</button>
+      <button data-panel="terminal">Terminal</button>
+      <button data-panel="coverage">Code Coverage Results</button>
+      <span class="tab-sep"></span>
+      <button data-panel="locals">Locals</button>
+      <button data-panel="watch">Watch</button>
+      <button data-panel="callstack">Call Stack</button>
+      <button data-panel="breakpoints">Breakpoints <span id="bpCount" class="count">0</span></button>
+      <button data-panel="immediate">Immediate</button>
+      <div class="tb-spacer"></div>
+      <div id="termControls" class="hidden">
+        <select id="termSelect" title="Terminal instances"></select>
+        <button id="btnNewTerm" title="New Terminal (Ctrl+Shift+`)">＋</button>
+        <button id="btnKillTerm" title="Kill Terminal">🗑</button>
+      </div>
+      <button id="btnClearOutput" title="Clear">🧹</button>
+    </div>
+    <pre id="panel-output" class="panel active"></pre>
+    <div id="panel-errors" class="panel">
+      <div class="err-bar">
+        <select id="errScope" title="Show problems from">
+          <option value="all">Build + IntelliSense</option>
+          <option value="build">Build Only</option>
+          <option value="intellisense">IntelliSense Only</option>
+        </select>
+        <label><input type="checkbox" id="errShowErr" checked /> ⛔ <span id="errNumErr">0</span> Errors</label>
+        <label><input type="checkbox" id="errShowWarn" checked /> ⚠️ <span id="errNumWarn">0</span> Warnings</label>
+        <label><input type="checkbox" id="errShowInfo" checked /> ℹ️ <span id="errNumInfo">0</span> Messages</label>
+      </div>
+      <table><thead><tr><th></th><th>Code</th><th>Description</th><th>File</th><th>Line</th><th>Source</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div id="panel-find" class="panel"></div>
+    <div id="panel-terminal" class="panel"></div>
+    <div id="panel-coverage" class="panel dbg-panel cov-panel">
+      <div class="cov-toolbar">
+        <button id="covRun" title="Analyze Code Coverage for All Tests">▶ Analyze</button>
+        <button id="covImport" title="Import Cobertura XML or LCOV coverage results">Import...</button>
+        <button id="covColor" title="Show Code Coverage Coloring">🎨 Coloring</button>
+        <button id="covClear" title="Clear coverage results">✕ Clear</button>
+        <span id="covSummary" class="cov-summary"></span>
+      </div>
+      <div class="cov-scroll"><table class="var-table cov-table"><thead><tr><th>Hierarchy</th><th>Covered (lines)</th><th>Not Covered (lines)</th><th>Covered (% lines)</th><th>Branches</th></tr></thead><tbody id="covBody"></tbody></table></div>
+    </div>
+    <div id="panel-locals" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="localsBody"></tbody></table></div>
+    <div id="panel-watch" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="watchBody"></tbody></table></div>
+    <div id="panel-callstack" class="panel dbg-panel"><table class="var-table"><thead><tr><th></th><th>Name</th><th>File</th><th>Line</th></tr></thead><tbody id="stackBody"></tbody></table></div>
+    <div id="panel-breakpoints" class="panel dbg-panel">
+      <div class="err-bar"><button id="bpDeleteAll" title="Delete All Breakpoints (Ctrl+Shift+F9)">🗑 Delete All</button><button id="bpToggleAll" title="Enable or disable all">◐ Enable/Disable All</button></div>
+      <table class="var-table"><thead><tr><th></th><th>Location</th><th>Condition</th><th></th></tr></thead><tbody id="bpBody"></tbody></table>
+    </div>
+    <div id="panel-immediate" class="panel dbg-panel immediate">
+      <pre id="immediateLog"></pre>
+      <input id="immediateInput" spellcheck="false" placeholder="Type an expression and press Enter (while stopped at a breakpoint). ↑/↓ for history." />
+    </div>
+  </section>
+
+  <footer id="status">
+    <span id="stMsg">Ready</span>
+    <span class="tb-spacer"></span>
+    <span id="stPr" class="clickable hidden"></span>
+    <span id="stCov" class="clickable hidden" title="Code coverage (click for results)"></span>
+    <span id="stUpdate" class="clickable hidden" title="Nova IDE update"></span>
+    <span id="stLsp" class="clickable hidden" title="IntelliSense status (click for details)"></span>
+    <span id="stBranch" class="clickable hidden" title="Switch branch"></span>
+    <span id="stPos"></span>
+    <span id="stLang"></span>
+    <span>UTF-8</span>
+  </footer>
+
+  <div id="ctxMenu" class="ctx hidden"></div>
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <div id="modalTitle"></div>
+      <input id="modalInput" spellcheck="false" />
+      <div class="modal-actions"><button id="modalOk">OK</button><button id="modalCancel">Cancel</button></div>
+    </div>
+  </div>
+
+  <!-- Command palette / Quick Open -->
+  <div id="palette" class="palette hidden">
+    <div class="palette-box">
+      <input id="paletteInput" spellcheck="false" />
+      <div id="paletteList"></div>
+      <div id="paletteHint"></div>
+    </div>
+  </div>
+
+  <!-- Tools > Options -->
+  <div id="settingsDlg" class="modal hidden">
+    <div class="modal-box settings-box">
+      <div class="settings-head"><b>Options</b><span class="tb-spacer"></span><button id="settingsClose">✕</button></div>
+      <div id="settingsForm"></div>
+      <div class="modal-actions">
+        <button id="settingsJson" title="Open settings.json">Edit JSON</button>
+        <button id="settingsReset">Reset to defaults</button>
+        <span class="tb-spacer"></span>
+        <button id="settingsOk" class="primary">OK</button>
+        <button id="settingsCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Debug > Performance Profiler -->
+  <div id="pfDlg" class="modal hidden">
+    <div class="modal-box pf-dlg">
+      <div class="settings-head"><b>Performance Profiler</b><span class="tb-spacer"></span><button id="pfDlgClose">✕</button></div>
+      <div id="pfTarget" class="pf-target"></div>
+      <div class="pf-tools">
+        <label><input type="checkbox" id="pfCpu" checked> <b>CPU Usage</b><div class="dlg-desc">Where the time goes, by function: functions, call tree, callers and callees, hot path.</div></label>
+        <label><input type="checkbox" id="pfAlloc"> <b>Memory Allocations</b><div id="pfAllocDesc" class="dlg-desc">What allocates memory: .NET by object type, Node.js by function.</div></label>
+        <label class="pf-always"><input type="checkbox" checked disabled> <b>Process memory and CPU</b><div class="dlg-desc">The Diagnostic Tools charts (always on).</div></label>
+      </div>
+      <div class="modal-actions"><span class="tb-spacer"></span><button id="pfStart" class="primary">Start</button><button id="pfCancel">Cancel</button></div>
+    </div>
+  </div>
+
+  <!-- xterm must load BEFORE Monaco's AMD loader, otherwise it registers as an anonymous AMD module -->
+  <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
+  <script src="../node_modules/@xterm/addon-fit/lib/addon-fit.js"></script>
+  <script src="../node_modules/monaco-editor/min/vs/loader.js"></script>
+  <script src="renderer.js"></script>
+  <script src="settings.js"></script>
+  <script src="terminal.js"></script>
+  <script src="palette.js"></script>
+  <script src="git.js"></script>
+  <script src="workspace.js"></script>
+  <script src="keymap.js"></script>
+  <script src="lsp.js"></script>
+  <script src="debug.js"></script>
+  <script src="solution.js"></script>
+  <script src="newproject.js"></script>
+  <script src="nuget.js"></script>
+  <script src="tests.js"></script>
+  <script src="coverage.js"></script>
+  <script src="githistory.js"></script>
+  <script src="gitmerge.js"></script>
+  <script src="pullrequests.js"></script>
+  <script src="workitems.js"></script>
+  <script src="diagnostics.js"></script>
+  <script src="profiler.js"></script>
+  <script src="heapsnap.js"></script>
+  <script src="extensions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

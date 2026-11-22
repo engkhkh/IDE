@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="Staging" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/App/App.csproj" />
+    <Project Path="src/Lib/Lib.csproj" />
+  </Folder>
+  <Folder Name="/src/tests/">
+    <Project Path="tests/App.Tests/App.Tests.csproj" />
+  </Folder>
+  <Project Path="tools/Tool.fsproj" />
+</Solution>
