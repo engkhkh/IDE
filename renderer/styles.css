@@ -759,3 +759,16 @@ body.theme-light .gh-chip.current { color: #fff; }
 #stHot.hr-applied, #stHot.hr-ready { color: #fff; }
 #stHot.hr-errors, #stHot.hr-crashed { background: rgba(241, 76, 76, .85); padding: 0 6px; border-radius: 2px; }
 #stHot.hr-rude { background: rgba(226, 192, 141, .35); padding: 0 6px; border-radius: 2px; }
+
+/* ---------- Phase 18: paths to root / referenced types ---------- */
+#hsView #hsBody { flex: 1 1 55%; min-height: 120px; }
+.hs-lower { flex: 0 0 40%; display: flex; flex-direction: column; border-top: 2px solid var(--border); min-height: 0; }
+.hs-lower-bar { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
+.hs-lower .pf-tabs { margin-left: 0; }
+.hs-lower .pf-tabs button { border-radius: 0; border: none; white-space: nowrap; }
+.hs-lower .pf-tabs button + button { border-left: 1px solid var(--border); }
+.hs-root { color: #e2c08d; font-style: italic; }
+.hs-hint { padding: 4px 8px; }
+#hsTable td.pf-name { max-width: 30vw; }
+#hsTable { table-layout: auto; }
+#hsTable td.num, #hsTable th.num { padding-left: 10px; }

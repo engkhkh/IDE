@@ -321,6 +321,15 @@ function ask(title, value = '') {
 }
 
 // ---------------- Output / Errors / Find ----------------
+// Delayed autofocus in a dialog: focus the element unless the user already went to another field of the
+// same dialog (the editor behind it doesn't count: Monaco's input is a textarea too)
+function focusIfIdle(el) {
+  const a = document.activeElement;
+  const box = el.closest ? el.closest('.modal, .dlg') : null;
+  if (a && a !== el && box && box.contains(a) && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable) && !a.disabled) return;
+  el.focus();
+}
+
 const ANSI_RE = /\x1b\[[0-9;?]*[A-Za-z]/g;
 function log(text, cls) {
   text = String(text).replace(ANSI_RE, '');

@@ -322,7 +322,7 @@ function dgRenderBody() {
           const objs = h('a', { href: '#', class: 'dg-heap-link', title: 'View the objects of this snapshot' }, sn.heap.objects.toLocaleString());
           objs.onclick = (e) => { e.preventDefault(); hsShow(s, i, 'count'); };
           const size = h('a', { href: '#', class: 'dg-heap-link', title: 'View the objects of this snapshot' }, dgFmtKB(sn.heap.bytes));
-          size.onclick = (e) => { e.preventDefault(); hsShow(s, i, 'bytes'); };
+          size.onclick = (e) => { e.preventDefault(); hsShow(s, i, sn.heap.types.some((x) => x.inclusive != null) ? 'inclusive' : 'bytes'); };
           const od = ph ? sn.heap.objects - ph.objects : null, bd = ph ? sn.heap.bytes - ph.bytes : null;
           cells.push(h('td', {}, objs, od == null ? '' : h('span', { class: od > 0 ? 'dg-up' : od < 0 ? 'dg-down' : 'dlg-desc' }, ` (${od > 0 ? '+' : od < 0 ? '−' : ''}${Math.abs(od).toLocaleString()})`)),
             h('td', {}, size, bd == null ? '' : h('span', { class: bd > 0 ? 'dg-up' : bd < 0 ? 'dg-down' : 'dlg-desc' }, ` (${bd > 0 ? '+' : bd < 0 ? '−' : ''}${dgFmtKB(Math.abs(bd))})`)));

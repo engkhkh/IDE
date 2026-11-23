@@ -237,6 +237,13 @@ a full GC that lists every live object. The Memory Usage tab shows Objects and H
 previous snapshot; click them to see the types (Count, Size, and their diff against another snapshot you pick;
 search, hide framework types, double-click a type to go to its declaration). While paused in the debugger only the
 process memory is recorded: continue, then take the snapshot.
+
+Each snapshot keeps the object graph, so the view also shows:
+- **Inclusive Size**: the objects plus everything only they keep alive (from the dominator tree), with its diff.
+- **Paths to Root** (select a type): what keeps its objects alive, merged by type along the shortest path from a GC
+  root: `[Static variable Recent]`, `[Stack]`, `[Strong handle]`, `[Finalizer queue]`... A growing count under a
+  static variable is the classic leak.
+- **Referenced Types**: what the objects of a type reference; expand to go deeper.
 Debug > Open Last Performance Report reopens it.
 Turn off "Show Diagnostic Tools when debugging starts" in Options > Debugging to keep the window closed (it still records).
 Memory is private bytes on Windows and resident memory on Linux/macOS.
@@ -288,6 +295,7 @@ main/workitems.js work items: GitHub Issues + Azure Boards (WIQL, JSON Patch), b
 main/diagnostics.js process CPU/memory sampling (/proc, ps, PowerShell CIM) for Diagnostic Tools + profiler
 main/eventpipe.js   .NET diagnostics IPC + nettrace reader (CPU samples, method names, allocation ticks, heap dumps)
 main/pdb.js         portable PDB reader (documents, sequence points) for .NET source lines
+main/heapgraph.js   heap graph: dominators / retained sizes, paths to root, referenced types
 main/profiler.js    Performance Profiler sessions: .NET / Node.js / Python, report building
 main/lsp/         language server client: connection (JSON-RPC), servers (registry), index (manager)
 preload.js        secure bridge -> window.ide

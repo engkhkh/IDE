@@ -205,7 +205,7 @@ async function findDotnet(pids) {
 
 // GC heap dump over a diagnostics connection: openConn() gives a fresh connection each time
 // typeNames: names seen in earlier snapshots of the same process (the runtime names each type only once)
-async function heapSnapshot(openConn, { timeoutMs = 60000, typeNames = new Map() } = {}) {
+async function heapSnapshot(openConn, { timeoutMs = 60000, typeNames = new Map(), graph = false } = {}) {
   const started = Date.now();
   const c1 = await openConn();
   c1.sock.write(collectTracing2(HEAP_SNAPSHOT_PROVIDERS, { bufferMB: 256, rundown: false }));
@@ -232,7 +232,7 @@ async function heapSnapshot(openConn, { timeoutMs = 60000, typeNames = new Map()
     await Promise.race([closed, new Promise((r) => setTimeout(r, 5000))]);
     c1.sock.destroy();
   }
-  try { parsed = parseNettrace(Buffer.concat(chunks)); } catch (e) { if (!parsed) return { error: `Could not read the heap snapshot: ${e.message}` }; }
+  try { parsed = parseNettrace(Buffer.concat(chunks), { graph }); } catch (e) { if (!parsed) return { error: `Could not read the heap snapshot: ${e.message}` }; }
   if (!parsed || !parsed.heap.bulkNodes) return { error: Date.now() - started >= timeoutMs ? 'The heap snapshot timed out.' : 'The program sent no heap data.' };
   const types = [];
   let objects = 0, bytes = 0;
@@ -244,16 +244,19 @@ async function heapSnapshot(openConn, { timeoutMs = 60000, typeNames = new Map()
   // merge generic instantiations reported more than once under the same name
   const byName = new Map();
   for (const t of types) { const e = byName.get(t.name); if (e) { e.count += t.count; e.bytes += t.bytes; } else byName.set(t.name, { ...t }); }
-  return { objects, bytes, types: [...byName.values()].sort((a, b) => b.bytes - a.bytes), ms: Date.now() - started };
+  const result = { objects, bytes, types: [...byName.values()].sort((a, b) => b.bytes - a.bytes), ms: Date.now() - started };
+  if (graph && parsed.heap.graph) result.graph = { ...parsed.heap.graph, typeNames };
+  return result;
 }
 
 // ---------------- nettrace parser ----------------
 // Format: "Nettrace" + FastSerialization objects (Trace, MetadataBlock, StackBlock, EventBlock, SPBlock).
 const TAG = { Null: 1, Begin: 5, End: 6 };
-function parseNettrace(buf) {
-  return parseNettraceInto(buf);
+// opts.graph: keep every object, reference and root of a heap dump (for retained sizes and paths to root)
+function parseNettrace(buf, opts = {}) {
+  return parseNettraceInto(buf, opts);
 }
-function parseNettraceInto(buf) {
+function parseNettraceInto(buf, opts = {}) {
   let p = 0;
   const u8 = () => buf[p++];
   const i32 = () => { const v = buf.readInt32LE(p); p += 4; return v; };
@@ -263,7 +266,8 @@ function parseNettraceInto(buf) {
   const sig = buf.toString('latin1', p, p + sl); p += sl;
   if (sig !== '!FastSerialization.1') throw new Error(`unknown serialization ${sig}`);
   const out = { pointerSize: 8, qpcFreq: 1, cpus: 1, pid: 0, metadata: new Map(), samples: [], methods: [], allocs: [], modules: new Map(), ilMaps: new Map(), events: 0, version: 0, firstTs: null, lastTs: null,
-    heap: { types: new Map(), nodes: new Map(), gcs: [], bulkNodes: 0 } };
+    heap: { types: new Map(), nodes: new Map(), gcs: [], bulkNodes: 0, graph: null } };
+  if (opts.graph) out.heap.graph = { addr: [], size: [], type: [], edgeCount: [], edges: [], roots: [], statics: [] };
   const stacks = new Map();
   for (;;) {
     if (p >= buf.length) break; // truncated: use what we have
@@ -430,13 +434,40 @@ function onEvent(h, pl, out, stacks) {
     // GCBulkNode: live objects (address, size, type, edge count)
     const n = pl.readUInt32LE(4);
     const nodes = out.heap.nodes;
+    const g = out.heap.graph;
     for (let i = 0, p = 10; i < n && p + 32 <= pl.length; i++, p += 32) {
       const size = Number(pl.readBigUInt64LE(p + 8));
       const type = pl.readBigUInt64LE(p + 16).toString();
       const e = nodes.get(type);
       if (e) { e.count++; e.bytes += size; } else nodes.set(type, { count: 1, bytes: size });
+      if (g) { g.addr.push(Number(pl.readBigUInt64LE(p))); g.size.push(size); g.type.push(type); g.edgeCount.push(Number(pl.readBigUInt64LE(p + 24))); }
     }
     out.heap.bulkNodes += n;
+  } else if (m.provider === 'Microsoft-Windows-DotNETRuntime' && m.eventId === 19) {
+    // GCBulkEdge: the references of the objects above, in order (each node's EdgeCount of them)
+    const g = out.heap.graph;
+    if (!g) return;
+    const n = pl.readUInt32LE(4);
+    for (let i = 0, p = 10; i < n && p + 12 <= pl.length; i++, p += 12) g.edges.push(Number(pl.readBigUInt64LE(p)));
+  } else if (m.provider === 'Microsoft-Windows-DotNETRuntime' && m.eventId === 16) {
+    // GCBulkRootEdge: address, kind (0 stack, 1 finalizer, 2 handle, 3 older generation, ...), flags (1 pinned, 2 weak, 4 interior, 8 ref counted)
+    const g = out.heap.graph;
+    if (!g) return;
+    const n = pl.readUInt32LE(4);
+    for (let i = 0, p = 10; i < n && p + 21 <= pl.length; i++, p += 21) g.roots.push({ addr: Number(pl.readBigUInt64LE(p)), kind: pl[p + 8], flags: pl.readUInt32LE(p + 9) });
+  } else if (m.provider === 'Microsoft-Windows-DotNETRuntime' && m.eventId === 38) {
+    // GCBulkRootStaticVar: static fields (root id, object, declaring type, flags, field name)
+    const g = out.heap.graph;
+    if (!g) return;
+    const n = pl.readUInt32LE(0);
+    let p = 14;
+    for (let i = 0; i < n && p + 28 <= pl.length; i++) {
+      const obj = Number(pl.readBigUInt64LE(p + 8));
+      const type = pl.readBigUInt64LE(p + 16).toString();
+      const [name, q] = utf16z(pl, p + 28);
+      p = q;
+      g.statics.push({ addr: obj, type, name });
+    }
   } else if (m.provider === 'Microsoft-Windows-DotNETRuntime' && (m.eventId === 1 || m.eventId === 2)) {
     // GCStart (count, depth, reason) / GCEnd (count, depth)
     out.heap.gcs.push({ kind: m.eventId === 1 ? 'start' : 'end', count: pl.readUInt32LE(0), depth: pl.readUInt32LE(4), reason: m.eventId === 1 ? pl.readUInt32LE(8) : null, afterNodes: out.heap.bulkNodes });

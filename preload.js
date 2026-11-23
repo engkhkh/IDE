@@ -145,7 +145,7 @@ contextBridge.exposeInMainWorld('ide', {
     run: invoke('tests:run'),
     cancel: invoke('tests:cancel')
   },
-  prof: { prepare: invoke('prof:prepare'), beforeStop: invoke('prof:beforeStop'), finish: invoke('prof:finish'), findMethod: invoke('prof:findMethod'), findType: invoke('prof:findType'), heapSnapshot: invoke('prof:heapSnapshot') },
+  prof: { prepare: invoke('prof:prepare'), beforeStop: invoke('prof:beforeStop'), finish: invoke('prof:finish'), findMethod: invoke('prof:findMethod'), findType: invoke('prof:findType'), heapSnapshot: invoke('prof:heapSnapshot'), heapPaths: invoke('prof:heapPaths'), heapRefs: invoke('prof:heapRefs') },
   diag: {
     start: invoke('diag:start'),
     stop: invoke('diag:stop'),

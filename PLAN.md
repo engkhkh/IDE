@@ -180,3 +180,11 @@ renderer/    UI: toolbar, Solution Explorer, Monaco tabs, Output / Error List / 
 - [x] Build errors in the Error List (dotnet watch prefix understood), cleared by the next change; Output without terminal color codes
 - [x] Stop ends dotnet watch and the app (process group)
 - [x] Tests: 3 unit tests on real dotnet watch output; 19 end-to-end checks
+
+### Phase 18 — .NET heap: Inclusive Size, Paths to Root, Referenced Types  ✅ (done)
+- [x] Heap dumps keep the object graph: GCBulkNode addresses + edge counts, GCBulkEdge references, GCBulkRootEdge roots (stack, handles, finalizer; weak handles ignored), GCBulkRootStaticVar static fields
+- [x] main/heapgraph.js: dominator tree (Cooper-Harvey-Kennedy) -> retained sizes; inclusive size per type without double counting nested instances; shortest paths from the roots (BFS, static fields first)
+- [x] Heap view: Inclusive Size + diff columns; lower pane Paths to Root (merged by type, busiest path opened) and Referenced Types (expandable)
+- [x] Graphs stay in the IDE process per window (last 8 snapshots); only summaries go to the window
+- [x] Tests: 5 unit tests (hand-made heap, random heap consistency) + live .NET graph check; 19 end-to-end checks
+- [x] Fixed: the New Work Item / New Pull Request dialogs focused their Title field 50 ms after opening and could move typing that had already started in another field (text ended up in the title) — focusIfIdle() only focuses if the user isn't already in another field of the dialog (found as a flaky regression check)

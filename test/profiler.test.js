@@ -276,5 +276,16 @@ test('live: .NET source lines from the PDB + heap snapshots', { skip: !dotnet, t
     const item = snap.types.find((t) => t.name === 'Item');
     assert.ok(item && item.count === 20000, JSON.stringify(snap.types.slice(0, 5)));
     assert.ok(snap.objects > 20000 && snap.bytes > item.bytes);
+    // the object graph: Items are kept by List<Item> (the local `keep` in Main, on the stack)
+    const hg = require('../main/heapgraph');
+    const snap2 = await ep.heapSnapshot(() => ep.connectTo(found.address), { graph: true });
+    const a = hg.analyze(snap2.graph);
+    const flat = (n, d = 0) => [`${'.'.repeat(d)}${n.name}`, ...n.children.flatMap((c) => flat(c, d + 1))];
+    const paths = flat(a.paths('Item'));
+    assert.ok(paths.includes('.Item[]') && paths.some((x) => /^\.\.System\.Collections\.Generic\.List`1\[Item\]$/.test(x)) && paths.includes('...[Stack]'), paths.join(' '));
+    const t = a.types.find((x) => x.name === 'Item');
+    assert.strictEqual(t.inclusive, t.bytes); // Items reference nothing
+    const list = a.types.find((x) => /^System\.Collections\.Generic\.List`1\[Item\]$/.test(x.name));
+    assert.ok(list.inclusive >= t.bytes, `${list.inclusive} >= ${t.bytes}`);
   } finally { c.kill(); }
 });

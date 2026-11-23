@@ -250,7 +250,7 @@ async function newWorkItem() {
       } },
       { label: 'Cancel', onClick: (close) => close() }]
   });
-  setTimeout(() => title.focus(), 50);
+  setTimeout(() => focusIfIdle(title), 50); // don't steal focus from a field the user is already in
 }
 
 // ---------------- "#" suggestions in the commit message ----------------

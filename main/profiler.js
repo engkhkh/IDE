@@ -13,6 +13,7 @@ const { execFile } = require('child_process');
 const { pathToFileURL, fileURLToPath } = require('url');
 const ep = require('./eventpipe');
 const diag = require('./diagnostics');
+const heapgraph = require('./heapgraph');
 
 const sessions = new Map();
 let seq = 0;
@@ -358,19 +359,45 @@ async function searchCs(root, skip, fn) {
 // processes a Diagnostic Tools session watches (debugging: through the port every .NET process opens)
 const typeCaches = new Map(); // 'prof:<id>' | 'pid:<pid>' -> type id -> name
 const typeCache = (key) => { if (!typeCaches.has(key)) { if (typeCaches.size > 50) typeCaches.delete(typeCaches.keys().next().value); typeCaches.set(key, new Map()); } return typeCaches.get(key); };
-async function heapSnapshot({ profId, diagId }) {
+// analyzed snapshots (object graphs) kept for Paths to Root / Referenced Types: newest few per window
+const heapGraphs = new Map(); // key -> { owner, analysis }
+let heapSeq = 0;
+function keepAnalysis(owner, analysis) {
+  const key = `heap${++heapSeq}`;
+  heapGraphs.set(key, { owner, analysis });
+  const mine = [...heapGraphs].filter(([, v]) => v.owner === owner);
+  while (mine.length > 8) heapGraphs.delete(mine.shift()[0]);
+  return key;
+}
+// counts and sizes per type name (generic types can be reported once per module)
+function withAnalysis(r, owner) {
+  if (!r || r.error || !r.graph) { if (r) delete r.graph; return r; }
+  try {
+    const a = heapgraph.analyze(r.graph);
+    const byName = new Map();
+    for (const t of a.types) { const e = byName.get(t.name); if (e) { e.count += t.count; e.bytes += t.bytes; e.inclusive += t.inclusive; } else byName.set(t.name, { ...t }); }
+    r.types = [...byName.values()].sort((x, y) => y.inclusive - x.inclusive);
+    r.key = keepAnalysis(owner, a);
+    r.roots = a.roots; r.unknownRoots = a.unknownRoots; r.analysisMs = a.ms;
+  } catch (e) { r.analysisError = e.message; }
+  delete r.graph;
+  return r;
+}
+async function heapSnapshot({ profId, diagId }, owner) {
   const s = profId && sessions.get(profId);
-  if (s && s.trace) return ep.heapSnapshot(() => s.trace.nextConn(5000), { typeNames: typeCache(`prof:${profId}`) });
+  if (s && s.trace) return withAnalysis(await ep.heapSnapshot(() => s.trace.nextConn(5000), { typeNames: typeCache(`prof:${profId}`), graph: true }), owner);
   const pids = diagId != null ? diag.pidsOf(diagId) : [];
   if (!pids.length) return { error: 'The program is not running.' };
   const found = await ep.findDotnet(pids);
   if (!found) return { error: 'No .NET runtime found in the program\'s processes.' };
-  const r = await ep.heapSnapshot(() => ep.connectTo(found.address), { typeNames: typeCache(`pid:${found.pid}:${found.address}`) });
-  return { ...r, pid: found.pid };
+  const r = await ep.heapSnapshot(() => ep.connectTo(found.address), { typeNames: typeCache(`pid:${found.pid}:${found.address}`), graph: true });
+  return { ...withAnalysis(r, owner), pid: found.pid };
 }
 
 function register({ ipcMain, ownerId, SKIP_DIRS }) {
-  ipcMain.handle('prof:heapSnapshot', (_e, o) => heapSnapshot(o || {}));
+  ipcMain.handle('prof:heapSnapshot', (_e, o) => heapSnapshot(o || {}, ownerId()));
+  ipcMain.handle('prof:heapPaths', (_e, { key, type }) => { const h = heapGraphs.get(key); return h ? h.analysis.paths(type) : null; });
+  ipcMain.handle('prof:heapRefs', (_e, { key, type }) => { const h = heapGraphs.get(key); return h ? h.analysis.refs(type) : null; });
   ipcMain.handle('prof:findType', (_e, { root, name }) => findType(root, name, SKIP_DIRS));
   ipcMain.handle('prof:prepare', (_e, o) => prepare(o, ownerId()));
   ipcMain.handle('prof:beforeStop', (_e, id) => beforeStop(id));
@@ -378,8 +405,9 @@ function register({ ipcMain, ownerId, SKIP_DIRS }) {
   ipcMain.handle('prof:findMethod', (_e, { root, ns, method }) => findMethod(root, ns, method, SKIP_DIRS));
 }
 function windowClosed(owner) {
+  for (const [k, v] of heapGraphs) if (v.owner === owner) heapGraphs.delete(k);
   for (const [id, s] of sessions) if (s.owner === owner) { if (s.trace) s.trace.close(); fs.rm(s.dir, { recursive: true, force: true }, () => {}); sessions.delete(id); }
 }
 
-module.exports = { heapSnapshot, findType, register, windowClosed, fromCpuProfile, fromHeapProfile, fromPython, mergeProfiles, findMethod, dotnetTargetPath, prepare, finish, beforeStop, NODE_HOOK, PY_HOOK, _sessions: sessions };
+module.exports = { heapGraphs, heapSnapshot, findType, register, windowClosed, fromCpuProfile, fromHeapProfile, fromPython, mergeProfiles, findMethod, dotnetTargetPath, prepare, finish, beforeStop, NODE_HOOK, PY_HOOK, _sessions: sessions };
 void pathToFileURL;

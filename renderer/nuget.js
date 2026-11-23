@@ -171,7 +171,7 @@ function nugetManager(projPath, opts = {}) {
   refreshBtn.onclick = async () => { await api.nuget.resetFeed(); st.latest = {}; load(); };
   dlg.el.addEventListener('keydown', (e) => { if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) { e.preventDefault(); search.focus(); } });
   load();
-  setTimeout(() => search.focus(), 0);
+  setTimeout(() => focusIfIdle(search), 0); // don't steal focus from a field the user is already in
   window.__nuget = { st, load };
 }
 
