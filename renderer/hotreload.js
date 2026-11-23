@@ -42,7 +42,8 @@ async function hrStart() {
   if (!proj) { status('Hot Reload needs a .NET startup project'); log('Hot Reload needs a .NET project: open a folder with a .csproj or a solution and pick the startup project.\n', 'info'); showPanel('output'); return; }
   HR.project = proj; HR.buf = ''; HR.errors = 0; HR.applied = 0; HR.events = []; HR.startedAt = Date.now();
   const cfg = $('#config') ? $('#config').value : 'Debug';
-  const command = `dotnet watch --non-interactive --project "${proj}" run -c ${cfg}`;
+  const lpName = typeof lpChosenName === 'function' ? lpChosenName(proj) : null;
+  const command = `dotnet watch --non-interactive --project "${proj}" run -c ${cfg}${lpName ? ` --launch-profile "${lpName}"` : ''}`;
   hrSet('building', `Starting ${baseName(proj)} with Hot Reload`);
   state.errors = []; renderErrors();
   const env = { DOTNET_WATCH_RESTART_ON_RUDE_EDIT: '1' };

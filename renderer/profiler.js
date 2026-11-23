@@ -67,6 +67,14 @@ async function pfStart({ cpu, alloc, target }) {
     }
     prep = await api.prof.prepare({ lang: t.lang, cpu, alloc, project: t.project, config: $('#config').value, root: state.root });
     if (prep.error) { log(`${prep.error}\n`, 'stderr'); showPanel('output'); status(prep.error); return null; }
+    if (t.lang === 'dotnet' && typeof lpForProject === 'function') {
+      const lp = await lpForProject(t.project);
+      if (lp) {
+        prep.env = { ...lp.env, ...prep.env };
+        if (lp.args.length) prep.command += ` ${lp.args.map((a) => (/[\s"]/.test(a) ? `"${a.replace(/"/g, '\\"')}"` : a)).join(' ')}`;
+        lpOpenBrowserWhenReady(lp.browserUrl);
+      }
+    }
   }
   PF.active = prep ? { id: prep.id } : null;
   const s = await dgProfile({ command: prep ? prep.command : undefined, env: prep ? prep.env : undefined, name: t.name, lang: t.lang, profId: prep ? prep.id : null });

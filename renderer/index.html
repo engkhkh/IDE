@@ -27,6 +27,7 @@
         <option>Release</option>
       </select>
       <select id="startupSelect" class="hidden" title="Startup project"></select>
+      <button id="lpProfile" class="hidden lp-profile" title="Launch profile"></button>
       <button id="btnRun" class="run" data-cmd="debugStart" title="Start Debugging (F5)">▶ <span id="runLabel">Start</span></button>
       <button id="btnRunNoDebug" class="run-nodebug" data-cmd="runNoDebug" title="Start Without Debugging (Ctrl+F5)">▷</button>
       <button id="btnStop" data-cmd="stop" title="Stop (Shift+F5)" disabled>■</button>
@@ -383,6 +384,7 @@
   <script src="profiler.js"></script>
   <script src="heapsnap.js"></script>
   <script src="hotreload.js"></script>
+  <script src="launchprofiles.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

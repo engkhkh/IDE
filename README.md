@@ -196,6 +196,19 @@ For anything else, add `.nova/launch.json` in VS Code format (`program`, `args`,
 While stopped: Locals, Watch, Call Stack, Breakpoints and Immediate windows (bottom panel), hover a variable for its value,
 double-click a value in Locals to change it, right-click the margin for conditional breakpoints or Run to Cursor.
 
+## Launch profiles (launchSettings.json)
+Like Visual Studio, Nova starts a .NET project with its launch profile from `Properties/launchSettings.json`:
+the profile's `applicationUrl` (ASPNETCORE_URLS), `environmentVariables`, `commandLineArgs` and `workingDirectory`,
+and opens the browser at `launchUrl` when `launchBrowser` is set (once the app says it is listening).
+- F5 (debugger) and the Performance Profiler apply the profile themselves; Ctrl+F5 and Hot Reload pass
+  `--launch-profile` to `dotnet run` / `dotnet watch`.
+- The profile used is shown next to the startup project; click it (or Debug > Launch Profile...) to pick another.
+  By default it's the profile named like the project, else the first one; IIS Express / Docker profiles are skipped.
+
+While debugging .NET, an exception that only passes from an `await` into the async method's Task (and is handled
+by the code awaiting it) is logged in the Output window and the program continues, as in Visual Studio.
+Options > Debugging has a setting to break on those too.
+
 ## Hot Reload (.NET)
 **Debug > Start With Hot Reload (Alt+Shift+F5)** or the 🔥 toolbar button runs the startup project under `dotnet watch`.
 Edit code while the app runs and save: the change is applied to the running app, no restart.

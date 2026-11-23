@@ -188,3 +188,12 @@ renderer/    UI: toolbar, Solution Explorer, Monaco tabs, Output / Error List / 
 - [x] Graphs stay in the IDE process per window (last 8 snapshots); only summaries go to the window
 - [x] Tests: 5 unit tests (hand-made heap, random heap consistency) + live .NET graph check; 19 end-to-end checks
 - [x] Fixed: the New Work Item / New Pull Request dialogs focused their Title field 50 ms after opening and could move typing that had already started in another field (text ended up in the title) — focusIfIdle() only focuses if the user isn't already in another field of the dialog (found as a flaky regression check)
+
+### Phase 19 — Launch profiles + .NET async exceptions (from a real run on Windows)  ✅ (done)
+Found by opening NexusMQ (Sample.WebApp, .NET 10) on Windows: it built and started, but listened on :5000 and its
+embedded client could not reach its own broker at http://localhost:5690 (the launch profile's URL), and the debugger
+kept stopping on SocketExceptions that the code handles (connect to every address at once, take the first).
+- [x] Properties/launchSettings.json (comments, trailing commas): applicationUrl -> ASPNETCORE_URLS, environmentVariables, commandLineArgs, workingDirectory, launchBrowser + launchUrl (opened when "Now listening on" appears)
+- [x] F5 and the profiler apply the profile; Ctrl+F5 / Hot Reload pass --launch-profile; profile picker next to the startup project (Debug > Launch Profile...)
+- [x] netcoredbg "user-unhandled" stops where the user frame is at an `await` (or an async state machine MoveNext): logged and continued, like Visual Studio; option to break anyway
+- [x] Tests: 8 unit tests; 13 end-to-end checks with a real ASP.NET Core app under netcoredbg

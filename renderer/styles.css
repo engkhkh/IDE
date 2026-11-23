@@ -772,3 +772,7 @@ body.theme-light .gh-chip.current { color: #fff; }
 #hsTable td.pf-name { max-width: 30vw; }
 #hsTable { table-layout: auto; }
 #hsTable td.num, #hsTable th.num { padding-left: 10px; }
+
+/* ---------- launch profiles ---------- */
+.lp-profile { background: transparent; color: var(--fg); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; font-size: 12px; cursor: pointer; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+.lp-profile:hover { background: var(--hover); }

@@ -98,6 +98,7 @@ const COMMAND_LIST = [
   ['showDiagnostics', 'Debug: Show Diagnostic Tools', 'Ctrl+Alt+F2'],
   ['performanceProfiler', 'Debug: Performance Profiler (CPU + memory without the debugger)', 'Alt+F2'],
   ['hotReloadStart', 'Debug: Start With Hot Reload (.NET)', 'Alt+Shift+F5'],
+  ['launchProfile', 'Debug: Launch Profile (launchSettings.json)', ''],
   ['hotReloadApply', 'Debug: Apply Code Changes (Hot Reload)', 'Alt+F10'],
   ['diagSnapshot', 'Debug: Take Memory Snapshot', ''],
   ['workItems', 'Git: View Work Items (Issues / Azure Boards)', ''],

@@ -447,7 +447,7 @@ function commandFor(kind) {
     if (kind === 'build') return `dotnet build ${quote(target)} -c ${cfg}`;
     if (kind === 'rebuild') return `dotnet build ${quote(target)} -c ${cfg} --no-incremental`;
     if (kind === 'clean') return `dotnet clean ${quote(target)} -c ${cfg}`;
-    if (kind === 'run') return `dotnet run --project ${quote(p.startup)} -c ${cfg}`;
+    if (kind === 'run') { const lp = typeof lpChosenName === 'function' ? lpChosenName(p.startup) : null; return `dotnet run --project ${quote(p.startup)} -c ${cfg}${lp ? ` --launch-profile ${quote(lp)}` : ''}`; }
   }
   if (p && p.type === 'node') {
     if (kind === 'build') return p.scripts.build ? 'npm run build' : null;

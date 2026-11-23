@@ -116,7 +116,12 @@ async function resolveLaunchConfig({ stopAtEntry }) {
         const r = await api.capture(`dotnet msbuild "${csproj}" -getProperty:TargetPath -p:Configuration=${cfgName}`, dirName(csproj));
         const target = (r.stdout || '').trim().split(/\r?\n/).filter(Boolean).pop();
         if (!r.ok || !target) return { error: `Could not find the built program: ${r.stderr || r.stdout}` };
-        return { patch: { program: target } };
+        // Properties/launchSettings.json: URLs, environment, arguments, working folder, browser (like Visual Studio)
+        const lp = typeof lpForProject === 'function' ? await lpForProject(csproj) : null;
+        if (!lp) return { patch: { program: target } };
+        log(`Launch profile: ${lp.name}${lp.env.ASPNETCORE_URLS ? ` (${lp.env.ASPNETCORE_URLS})` : ''}\n`, 'info');
+        lpOpenBrowserWhenReady(lp.browserUrl);
+        return { patch: { program: target, cwd: lp.cwd, args: lp.args, env: { DOTNET_ENVIRONMENT: 'Development', ...lp.env } } };
       },
       config: { type: 'coreclr', request: 'launch', cwd: dirName(csproj), args: [], stopAtEntry: !!stopAtEntry, console: 'internalConsole', justMyCode: true, env: { DOTNET_ENVIRONMENT: 'Development' } }
     };
@@ -344,6 +349,8 @@ async function onStopped(s, b) {
   if (DBG.threadId == null && DBG.threads.length) DBG.threadId = DBG.threads[0].id;
   // Run to Cursor: remove the temporary breakpoint again
   if (DBG.tempBp) { const t = DBG.tempBp; DBG.tempBp = null; for (const x of DBG.sessions.values()) if (x.configured) sendBreakpoints(x, t.path); }
+  // .NET exceptions that only pass into an async method's Task: log and continue (like Visual Studio)
+  if (b.reason === 'exception' && await dbgSkipAsyncException(s, b)) return;
   const reason = b.reason === 'exception' ? 'Exception thrown' : b.reason === 'breakpoint' ? 'Breakpoint hit' : b.reason === 'step' ? 'Step' : b.reason === 'entry' ? 'Stopped at entry' : `Paused (${b.reason})`;
   status(`${reason}${b.description && b.reason !== 'breakpoint' && b.reason !== 'step' ? `: ${b.description}` : ''}`);
   if (b.reason === 'exception') await showException(s, b);
@@ -363,6 +370,36 @@ async function onStopped(s, b) {
   const activePanel = document.querySelector('#bottomTabs button.active');
   if (!activePanel || !['locals', 'watch', 'callstack', 'immediate'].includes(activePanel.dataset.panel)) showPanel('locals');
   if (!document.hasFocus()) window.focus();
+}
+
+// .NET: netcoredbg reports an exception as "not handled in user code" when it leaves an async method, although
+// the method's Task carries it to the code that awaits it (Visual Studio doesn't break there). When the user
+// frame is at an await (or is an async state machine), log it and continue, unless the option asks to break.
+const DBG_LINES = new Map();
+async function dbgSkipAsyncException(s, b) {
+  if (s.type !== 'coreclr' || state.settings.breakOnAsyncUserUnhandled) return false;
+  let info = null;
+  if (s.caps && s.caps.supportsExceptionInfoRequest) { try { info = await s.request('exceptionInfo', { threadId: b.threadId ?? DBG.threadId }); } catch { /* */ } }
+  const userUnhandled = (info && info.breakMode === 'userUnhandled') || /not handled in user code/i.test(`${(info && info.description) || ''} ${b.text || ''} ${b.description || ''}`);
+  if (!userUnhandled) return false;
+  let frames = [];
+  try { frames = (await s.request('stackTrace', { threadId: b.threadId ?? DBG.threadId, startFrame: 0, levels: 30 })).stackFrames || []; } catch { return false; }
+  const f = frames.find((x) => x.source && x.source.path);
+  if (!f) return false;
+  let atAwait = /MoveNext|>d__\d+/.test(f.name || '');
+  if (!atAwait) {
+    try {
+      let lines = DBG_LINES.get(f.source.path);
+      if (!lines) { lines = (await api.readFile(f.source.path)).split(/\r?\n/); DBG_LINES.set(f.source.path, lines); }
+      atAwait = /\bawait\b/.test(lines[f.line - 1] || '');
+    } catch { /* */ }
+  }
+  if (!atAwait) return false;
+  const what = info ? `${(info.exceptionId || '').replace(/^CLR\//, '')}${info.description ? `: ${info.description.replace(/^An exception of type '[^']*' occurred in \S+ but was not handled in user code:?\s*/, '')}` : ''}` : (b.text || 'Exception');
+  log(`Exception in async code at ${baseName(f.source.path)}:${f.line} (${what}) - passed to the awaiting Task, continuing\n`, 'info');
+  DBG.stopped = false;
+  try { await s.request('continue', { threadId: b.threadId ?? DBG.threadId }); } catch { /* */ }
+  return true;
 }
 
 async function showException(s, b) {
