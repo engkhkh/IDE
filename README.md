@@ -209,6 +209,16 @@ While debugging .NET, an exception that only passes from an `await` into the asy
 by the code awaiting it) is logged in the Output window and the program continues, as in Visual Studio.
 Options > Debugging has a setting to break on those too.
 
+## Multiple startup projects
+Like Visual Studio, F5 can start several projects of a solution at once: pick a profile in the startup project box
+(next to Start), or Project > Configure Startup Projects... to make one. For each project choose Start (with the
+debugger), Start without debugging, or None, its launch profile (Debug Target), and the order.
+- Profiles are Visual Studio's multi-project launch profiles: `<Solution>.slnLaunch` (shared with the team) or
+  `<Solution>.slnLaunch.user` (yours), next to the solution. Profiles made in either IDE work in both.
+- F5 builds the solution once, debugs the "Start" projects (each its own debugger; breakpoints in any of them)
+  and runs the others; Ctrl+F5 runs them all without the debugger. Output lines start with `[Project]`.
+- A program that ends leaves the others running; Shift+F5 stops them all.
+
 ## Hot Reload (.NET)
 **Debug > Start With Hot Reload (Alt+Shift+F5)** or the 🔥 toolbar button runs the startup project under `dotnet watch`.
 Edit code while the app runs and save: the change is applied to the running app, no restart.
@@ -322,7 +332,8 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   pullrequests.js (Pull Requests window, create dialog, accounts),
                   workitems.js (Work Items window, # suggestions, #123 links),
                   diagnostics.js (Diagnostic Tools window), profiler.js (profiler options, performance report),
-                  heapsnap.js (.NET heap snapshot view), hotreload.js (.NET Hot Reload)
+                  heapsnap.js (.NET heap snapshot view), hotreload.js (.NET Hot Reload),
+                  launchprofiles.js (launchSettings.json), multistart.js (multiple startup projects)
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions
 test/             unit tests (npm test)

@@ -86,3 +86,20 @@ test('filter escaping and durations', () => {
   assert.strictEqual(escapeFilter('A.B(1, 2)'), 'A.B\\(1, 2\\)');
   assert.strictEqual(parseDuration('00:01:02.5000000'), 62500);
 });
+
+// found in a real project (NexusMQ AccessTests): one-line tests whose expression body creates an object
+test('one-line test with "=> new X(...)" body is discovered', () => {
+  const src = [
+    'namespace NexusMQ.Tests;',
+    'public class AccessTests',
+    '{',
+    '    [Fact] public void Open_when_no_keys_configured() => new NexusAuthorizer(new NexusServerOptions()).Demand(null, NexusRights.Manage, null);',
+    '    [Fact] public void Missing_key_is_unauthorized() => Assert.Equal(1, Denied(null));',
+    '    [Fact] public async Task Creates() { var x = new List<int>(); await Task.Yield(); }',
+    '    private static Foo Make() => new Foo();',
+    '}'
+  ].join('\n');
+  const r = scanSource(src, '/x/AccessTests.cs');
+  assert.deepStrictEqual(r.map((t) => t.method), ['Open_when_no_keys_configured', 'Missing_key_is_unauthorized', 'Creates']);
+  assert.strictEqual(r[0].fqn, 'NexusMQ.Tests.AccessTests.Open_when_no_keys_configured');
+});

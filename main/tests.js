@@ -43,7 +43,9 @@ function scanSource(text, file) {
       c = c.slice(m[0].length);
     }
     if ((m = /\b(?:class|record|struct)\s+(\w+)/.exec(c)) && !/\bnew\b/.test(c.slice(0, m.index))) { pendingDecl = { kind: 'class', name: m[1] }; pendingAttrs = []; pendingSkip = null; return; }
-    if (pendingAttrs.length && (m = /([A-Za-z_]\w*)\s*(?:<[^>]*>)?\s*\(/.exec(c)) && !/\bnew\b/.test(c)) {
+    // the first name( on the line is the method; `new` only disqualifies it when it comes before the name
+    // (an expression body like "=> new Foo(...)" is fine: found in NexusMQ's AccessTests)
+    if (pendingAttrs.length && (m = /([A-Za-z_]\w*)\s*(?:<[^>]*>)?\s*\(/.exec(c)) && !/\bnew\b/.test(c.slice(0, m.index))) {
       const ns = [fileNs, ...stack.filter((b) => b.kind === 'ns').map((b) => b.name)].filter(Boolean).join('.');
       const classes = stack.filter((b) => b.kind === 'class').map((b) => b.name);
       if (classes.length) {

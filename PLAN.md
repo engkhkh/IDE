@@ -197,3 +197,10 @@ kept stopping on SocketExceptions that the code handles (connect to every addres
 - [x] F5 and the profiler apply the profile; Ctrl+F5 / Hot Reload pass --launch-profile; profile picker next to the startup project (Debug > Launch Profile...)
 - [x] netcoredbg "user-unhandled" stops where the user frame is at an `await` (or an async state machine MoveNext): logged and continued, like Visual Studio; option to break anyway
 - [x] Tests: 8 unit tests; 13 end-to-end checks with a real ASP.NET Core app under netcoredbg
+
+### Phase 20 — Multiple startup projects + real-project check (NexusMQ)  ✅ (done)
+- [x] Checked against the user's NexusMQ (copied from the PC; can't be built here: .NET 10 + nuget.org): .sln and .slnx both read as 11 projects / 4 folders / 7 runnable; launch profiles read
+- [x] Fixed: Test Explorer missed one-line tests whose body creates an object ([Fact] public void X() => new Y(...)): 160 -> 161 of 161 NexusMQ tests
+- [x] Multiple startup projects: Visual Studio .slnLaunch / .slnLaunch.user (reads "Path" and the older "Name" form, writes both), startup box lists the profiles, Configure Startup Projects dialog (action, debug target, order, share)
+- [x] F5: one build, each "Start" project in its own debugger (peer sessions: breakpoints, status names the project, one ending leaves the others), the others with dotnet run --no-build; Ctrl+F5 all without the debugger; [Project] prefixes; Shift+F5 stops all; browsers per launch profile
+- [x] Tests: 4 unit tests; 22 end-to-end checks (Server + Producer debugged, Consumer without the debugger)

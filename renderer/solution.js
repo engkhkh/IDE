@@ -301,6 +301,7 @@ function projectMenu(x, y, p) {
     { label: 'Manage NuGet Packages...', run: () => commands.manageNuget(p.path) },
     '-',
     { label: isStartup ? '✓ Startup Project' : 'Set as Startup Project', run: () => setStartup(p.path), disabled: isStartup },
+    { label: 'Configure Startup Projects...', run: () => commands.configureStartupProjects() },
     { label: 'Debug: Start New Instance', run: () => { setStartup(p.path); commands.debugStart(); }, disabled: !(p.info && p.info.runnable) },
     '-',
     { label: 'Edit Project File', run: () => openFile(p.path) },

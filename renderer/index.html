@@ -345,6 +345,22 @@
 
 
   <!-- Debug > Performance Profiler -->
+  <!-- Project > Configure Startup Projects (multiple startup projects) -->
+  <div id="msDlg" class="modal hidden">
+    <div class="modal-box ms-dlg">
+      <div class="settings-head"><b>Configure Startup Projects</b><span class="tb-spacer"></span><button id="msClose">✕</button></div>
+      <div class="ms-row">
+        <label>Profile <select id="msProfiles"></select></label>
+        <button id="msNew">New</button><button id="msDelete">Delete</button>
+      </div>
+      <div class="ms-row"><label>Name <input id="msName" spellcheck="false"></label></div>
+      <table id="msTable" class="dg-table ms-table"></table>
+      <label class="ms-share"><input type="checkbox" id="msShared"> Share with the team (save to .slnLaunch instead of .slnLaunch.user)</label>
+      <div id="msSummary" class="dlg-desc"></div>
+      <div class="modal-actions"><span class="tb-spacer"></span><button id="msSave" class="primary">Save</button><button id="msCancel">Cancel</button></div>
+    </div>
+  </div>
+
   <div id="pfDlg" class="modal hidden">
     <div class="modal-box pf-dlg">
       <div class="settings-head"><b>Performance Profiler</b><span class="tb-spacer"></span><button id="pfDlgClose">✕</button></div>
@@ -385,6 +401,7 @@
   <script src="heapsnap.js"></script>
   <script src="hotreload.js"></script>
   <script src="launchprofiles.js"></script>
+  <script src="multistart.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

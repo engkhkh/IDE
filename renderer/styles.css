@@ -776,3 +776,14 @@ body.theme-light .gh-chip.current { color: #fff; }
 /* ---------- launch profiles ---------- */
 .lp-profile { background: transparent; color: var(--fg); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; font-size: 12px; cursor: pointer; white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
 .lp-profile:hover { background: var(--hover); }
+
+/* ---------- Phase 20: multiple startup projects ---------- */
+.ms-dlg { width: 640px; }
+.ms-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.ms-row label { display: flex; align-items: center; gap: 6px; }
+.ms-row select, .ms-row input { min-width: 220px; }
+.ms-table select { width: 100%; }
+.ms-table td { padding: 3px 4px; }
+.ms-table tr.ms-none td:first-child { color: var(--fg-dim); }
+.ms-order button { padding: 0 6px; }
+.ms-share { display: block; margin: 8px 0 4px; font-size: 12px; }

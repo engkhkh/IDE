@@ -83,6 +83,7 @@ const COMMAND_LIST = [
   ['addProjectReference', 'Project: Add Project Reference...', ''],
   ['manageNuget', 'Project: Manage NuGet Packages...', ''],
   ['setStartupFromSelection', 'Project: Set as Startup Project', ''],
+  ['configureStartupProjects', 'Project: Configure Startup Projects (multiple)', ''],
   ['editProjectFile', 'Project: Edit Project File', ''],
   ['showTestExplorer', 'Test: Test Explorer', 'Ctrl+E, T'],
   ['testRunAll', 'Test: Run All Tests', 'Ctrl+R, A'],

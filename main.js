@@ -197,6 +197,7 @@ const MENU = [
     '-',
     { label: 'Manage NuGet Packages...', cmd: 'manageNuget' },
     { label: 'Set as Startup Project', cmd: 'setStartupFromSelection' },
+    { label: 'Configure Startup Projects...', cmd: 'configureStartupProjects' },
     { label: 'Edit Project File', cmd: 'editProjectFile' },
     '-',
     { label: 'Switch Solution Explorer View (Solution / Folder)', cmd: 'toggleSolutionView' }

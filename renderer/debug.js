@@ -264,10 +264,13 @@ async function stopDebugging() {
   if (!root) return;
   DBG.stopping = true;
   status('Stopping debugger...');
-  try {
-    if (root.caps.supportsTerminateRequest && !root.ended) await root.request('terminate', {}, 3000);
-    else if (!root.ended) await root.request('disconnect', { terminateDebuggee: true, restart: false }, 3000);
-  } catch {}
+  const programs = [root, ...[...DBG.sessions.values()].filter((x) => x.peer)];
+  await Promise.all(programs.map(async (p) => {
+    try {
+      if (p.caps.supportsTerminateRequest && !p.ended) await p.request('terminate', {}, 3000);
+      else if (!p.ended) await p.request('disconnect', { terminateDebuggee: true, restart: false }, 3000);
+    } catch {}
+  }));
   // give the adapter a moment to exit cleanly, then make sure everything is gone
   setTimeout(() => { for (const s of [...DBG.sessions.values()]) { api.dap.kill(s.id); endSession(s); } }, 1500);
 }
@@ -276,6 +279,27 @@ function endSession(s) {
   if (!DBG.sessions.has(s.id)) return;
   s.end();
   DBG.sessions.delete(s.id);
+  // multiple startup projects: a program that ends leaves the others debugging
+  const peers = [...DBG.sessions.values()].filter((x) => x.peer);
+  if (s.peer) {
+    api.dap.kill(s.id);
+    log(`------ Debugging ${s.name} ended ------\n`, 'info');
+    if (DBG.focus === s) { DBG.focus = null; clearStopState(); }
+    updateDebugUI();
+    return;
+  }
+  if (s === DBG.root && peers.length && !DBG.stopping) {
+    for (const c of [...DBG.sessions.values()]) if (c.parent === s && !c.peer) { c.end(); DBG.sessions.delete(c.id); api.dap.kill(c.id); }
+    api.dap.kill(s.id);
+    log(`------ Debugging ${s.name} ended ------\n`, 'info');
+    const next = peers[0];
+    next.peer = false; next.parent = null;
+    for (const p of peers.slice(1)) p.parent = next;
+    DBG.root = next;
+    if (DBG.focus === s) { DBG.focus = null; clearStopState(); }
+    updateDebugUI();
+    return;
+  }
   if (s !== DBG.root && DBG.root && DBG.sessions.size) {
     if (DBG.focus === s) { DBG.focus = null; clearStopState(); }
     return;
@@ -296,6 +320,19 @@ function endSession(s) {
   status('Ready');
 }
 
+// Multiple startup projects: each session's output lines start with "[Project] "
+function dbgPrefix(s, text) {
+  if (!s.prefix) return text;
+  let out = '';
+  for (const part of String(text).split(/(\n)/)) {
+    if (part === '\n') { out += part; s.midLine = false; continue; }
+    if (!part) continue;
+    if (!s.midLine) { out += s.prefix; s.midLine = true; }
+    out += part;
+  }
+  return out;
+}
+
 // ---------------- events from the debugger ----------------
 async function onEvent(s, ev) {
   const b = ev.body || {};
@@ -307,11 +344,11 @@ async function onEvent(s, ev) {
       break;
     case 'output':
       if (b.category === 'telemetry') break;
-      if (b.output) log(b.output, b.category === 'stderr' ? 'stderr' : (b.category === 'console' || b.category === 'important') ? 'info' : null);
+      if (b.output) log(dbgPrefix(s, b.output), b.category === 'stderr' ? 'stderr' : (b.category === 'console' || b.category === 'important') ? 'info' : null);
       if (b.output && b.category !== 'console') bus.emit('debugEvent', { kind: 'output', session: s, category: b.category || 'stdout', text: b.output });
       break;
     case 'exited':
-      log(`The program has exited with code ${b.exitCode} (0x${(b.exitCode >>> 0).toString(16)}).\n`, 'info');
+      log(`${s.prefix || ''}The program has exited with code ${b.exitCode} (0x${(b.exitCode >>> 0).toString(16)}).\n`, 'info');
       bus.emit('debugEvent', { kind: 'exited', session: s, exitCode: b.exitCode });
       break;
     case 'terminated': endSession(s); break;
@@ -352,7 +389,7 @@ async function onStopped(s, b) {
   // .NET exceptions that only pass into an async method's Task: log and continue (like Visual Studio)
   if (b.reason === 'exception' && await dbgSkipAsyncException(s, b)) return;
   const reason = b.reason === 'exception' ? 'Exception thrown' : b.reason === 'breakpoint' ? 'Breakpoint hit' : b.reason === 'step' ? 'Step' : b.reason === 'entry' ? 'Stopped at entry' : `Paused (${b.reason})`;
-  status(`${reason}${b.description && b.reason !== 'breakpoint' && b.reason !== 'step' ? `: ${b.description}` : ''}`);
+  status(`${DBG.sessions.size > 1 && s.name && (s.peer || [...DBG.sessions.values()].some((x) => x.peer)) ? `[${s.name}] ` : ''}${reason}${b.description && b.reason !== 'breakpoint' && b.reason !== 'step' ? `: ${b.description}` : ''}`);
   if (b.reason === 'exception') await showException(s, b);
   await loadStack();
   // attached to a test host: skip its own startup break until we stop in your code
