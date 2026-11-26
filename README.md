@@ -253,6 +253,29 @@ Features Visual Studio, Rider and VS Code all have, added after comparing them (
   `[HttpGet("...")]`, `[controller]` / `[action]`). Double-click goes to the code; ⚡ Generate Request adds it to
   `<Project>.http` with `@<Project>_HostAddress` from launchSettings.json, ready for ▷ Send request.
 
+## AI Chat, Containers, Database Explorer, Settings Sync (Phase 23)
+- **AI Chat** (the AI Chat tab beside Solution Explorer, View > AI Chat, Ctrl+Alt+Shift+I): ask about your code with
+  the selection or the active file as context; answers stream in as Markdown, code blocks have ⤵ Insert (replaces
+  the selection, one Undo) and Copy. The editor's context menu (and Tools > AI) has Explain, Fix, Write Tests and
+  Document. ⚙ picks the provider: **Claude** (Anthropic API, default model `claude-sonnet-5-5`), **OpenAI or any
+  OpenAI-compatible API** (Azure OpenAI's /v1, LM Studio, vLLM...), or **Ollama** on your PC (no key, nothing leaves
+  the machine). Bring your own API key: it is kept encrypted by the OS (or read from ANTHROPIC_API_KEY /
+  OPENAI_API_KEY), never in settings.json. ■ Stop ends an answer.
+- **Containers** (View > Containers): containers (state, ports, Compose project) and images through the docker CLI —
+  Start, Stop, Restart, Remove, Logs (double-click), Environment / Ports / Mounts, ⌨ Terminal inside the container
+  (docker exec), 🌐 open the published port, 🔨 Build Image from the folder's Dockerfile (tagged `<folder>:dev`,
+  built from the solution folder like Visual Studio's .NET templates), ⬆ Compose Up / ⬇ Down. Works with Docker
+  Desktop, Podman (Options > docker command) or a remote DOCKER_HOST.
+- **Database Explorer** (View > Database Explorer): the folder's SQLite databases (`*.db`, `*.sqlite`, `*.sqlite3`,
+  `*.db3`) or any you add with ＋ (a new path creates one) — tables and views with row counts, columns (🔑 keys,
+  🔗 foreign keys), indexes; double-click a table for its first 200 rows; a query box (Ctrl+Enter) and Ctrl+Shift+E
+  in a `.sql` file run SQL on the chosen database. Changes are written to the file (not if it changed meanwhile).
+  SQLite through sql.js (WebAssembly): nothing to install. SQL Server / PostgreSQL are not supported yet.
+- **Settings Sync** (Tools > Settings Sync): Upload puts your Options, dictionary words and extension list in a secret
+  GitHub Gist (the GitHub sign-in of Git > Accounts, GITHUB_TOKEN or the GitHub CLI; the token needs the `gist`
+  scope); Download on another PC applies them and installs the extensions it can. Export / Import a file does the
+  same without GitHub.
+
 ## HTTP files (.http / .rest)
 Test web APIs without leaving the IDE, with the same file format as Visual Studio (also read by Rider and the VS Code
 REST Client):
@@ -351,6 +374,7 @@ Memory is private bytes on Windows and resident memory on Linux/macOS.
 | Call Hierarchy / Inline hints | Ctrl+K, Ctrl+T / Alt+F1 |
 | Markdown Preview / Send HTTP request | Ctrl+Shift+V / Ctrl+Alt+S |
 | Split editor / switch group / split terminal | Ctrl+Alt+\\ / Ctrl+Alt+PageDown / Ctrl+Shift+5 |
+| AI Chat / Execute SQL | Ctrl+Alt+Shift+I / Ctrl+Shift+E |
 | Go to line | Ctrl+G |
 | Solution Explorer / Output | Ctrl+Alt+L / Ctrl+Alt+O |
 | Command Palette / Go to File | Ctrl+Shift+P / Ctrl+P |
@@ -389,6 +413,10 @@ main/profiler.js    Performance Profiler sessions: .NET / Node.js / Python, repo
 main/httpclient.js  sends the requests of .http files (no CORS; dev certificate on localhost)
 main/spellcheck.js  spell checker (nspell + Hunspell English dictionary, user words)
 main/endpoints.js   Endpoints Explorer: ASP.NET Core routes from minimal APIs and controllers
+main/ai.js          AI Chat: Anthropic / OpenAI-compatible / Ollama streaming, keys in safeStorage
+main/containers.js  Containers window (docker CLI)
+main/database.js    Database Explorer: SQLite through sql.js
+main/settingssync.js Settings Sync through a GitHub Gist
 main/lsp/         language server client: connection (JSON-RPC), servers (registry), index (manager)
 preload.js        secure bridge -> window.ide
 renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, git.js, workspace.js,
@@ -406,7 +434,8 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   editorconfig.js, bookmarks.js, tasklist.js, replaceinfiles.js (Find/Replace in Files),
                   markdown.js (Markdown preview + side pane), httpclient.js (.http files),
                   callhierarchy.js (call hierarchy + inline hints), splitview.js (second document group),
-                  spellcheck.js, endpoints.js (Endpoints Explorer)
+                  spellcheck.js, endpoints.js (Endpoints Explorer), ai.js (AI Chat), containers.js,
+                  database.js (Database Explorer), settingssync.js
 docs/             COMPARISON.md: Nova next to Visual Studio 2026, Rider and VS Code
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions

@@ -83,8 +83,9 @@ function hrLine(line) {
     // a new edit: the old build errors no longer apply
     if (HR.errors) { state.errors = []; renderErrors(); HR.errors = 0; }
     hrSet('applying', `File changed: ${baseName(x[1])}`);
-  } else if (/Hot reload of changes succeeded/i.test(t)) { HR.applied++; hrSet('applied', 'Changes applied'); status('Hot Reload: code changes applied'); }
-  else if (/No hot reload changes to apply/i.test(t)) hrSet('nochange', 'No changes to apply');
+  } else if (/Hot reload of changes succeeded/i.test(t)) { HR.applied++; HR.appliedAt = Date.now(); hrSet('applied', 'Changes applied'); status('Hot Reload: code changes applied'); }
+  // one save can reach dotnet watch as two file events: the second finds nothing new, which is not news
+  else if (/No hot reload changes to apply/i.test(t)) { if (HR.state === 'applied' && Date.now() - (HR.appliedAt || 0) < 3000) hrEvent('nochange', 'No changes to apply'); else hrSet('nochange', 'No changes to apply'); }
   else if (/\berror [A-Z]+\d+\b/.test(t)) {
     HR.errors++;
     const msg = t.replace(/^.*?:\s*error\s+/, 'error ');

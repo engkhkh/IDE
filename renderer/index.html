@@ -189,6 +189,17 @@
         <button data-side="git">Git Changes <span id="gitCount" class="count hidden">0</span></button>
         <button data-side="tests">Test Explorer <span id="testCount" class="count failed hidden">0</span></button>
         <button data-side="diag">Diagnostic Tools <span id="diagDot" class="count rec hidden">●</span></button>
+        <button data-side="ai">AI Chat</button>
+      </div>
+      <div id="side-ai" class="side-panel">
+        <div class="dg-head"><span class="dg-title">AI Chat · <span id="aiModel"></span></span><span class="tb-spacer"></span>
+          <button id="aiNew" title="New chat">＋</button><button id="aiGear" title="Provider, model, API key">⚙</button></div>
+        <div id="aiMessages" class="ai-messages"></div>
+        <div class="ai-input">
+          <label class="ai-ctx"><input type="checkbox" id="aiUseContext" checked> Include the selection / active file</label>
+          <textarea id="aiInput" rows="3" placeholder="Ask about your code (Enter sends, Shift+Enter new line)" spellcheck="true"></textarea>
+          <div class="ai-buttons"><span class="tb-spacer"></span><button id="aiStop" class="hidden">■ Stop</button><button id="aiSend" class="primary">Send</button></div>
+        </div>
       </div>
       <div id="side-diag" class="side-panel">
         <div class="dg-head">
@@ -259,6 +270,8 @@
       <button data-panel="bookmarks">Bookmarks <span id="bmCount" class="count">0</span></button>
       <button data-panel="callhierarchy">Call Hierarchy</button>
       <button data-panel="endpoints">Endpoints</button>
+      <button data-panel="containers">Containers</button>
+      <button data-panel="database">Database</button>
       <span class="tab-sep"></span>
       <button data-panel="locals">Locals</button>
       <button data-panel="watch">Watch</button>
@@ -320,6 +333,33 @@
     <div id="panel-endpoints" class="panel dbg-panel">
       <div class="err-bar"><input id="epFilter" placeholder="Filter endpoints" spellcheck="false" /><button id="epRefresh" title="Scan the projects again">⟳ Refresh</button><span id="epSummary" class="dlg-desc"></span></div>
       <div id="epTree"></div>
+    </div>
+    <div id="panel-containers" class="panel dbg-panel">
+      <div class="err-bar">
+        <span id="ctTabs" class="hc-tabs"><button data-v="containers" class="active">Containers</button><button data-v="images">Images</button></span>
+        <button id="ctRefresh" title="Refresh">⟳</button>
+        <button id="ctStart" title="Start">▶</button><button id="ctStop" title="Stop">■</button><button id="ctRestart" title="Restart">↻</button>
+        <button id="ctLogs" title="Logs (or double-click)">📄 Logs</button><button id="ctShell" title="Terminal inside the container">⌨ Terminal</button>
+        <button id="ctBrowse" title="Open the published port in the browser">🌐</button><button id="ctRemove" title="Remove">🗑</button>
+        <span class="tb-sep"></span>
+        <button id="ctBuild" title="docker build">🔨 Build Image</button><button id="ctUp" title="docker compose up">⬆ Compose Up</button><button id="ctDown" title="docker compose down">⬇ Down</button>
+        <span id="ctMsg" class="dlg-desc"></span>
+      </div>
+      <table class="var-table ct-table"><thead id="ctHead"></thead><tbody id="ctBody"></tbody></table>
+    </div>
+    <div id="panel-database" class="panel dbg-panel">
+      <div class="err-bar">
+        <select id="dbxConn" title="SQLite database"></select><button id="dbxAdd" title="Add a database file (or create one)">＋</button><button id="dbxRefresh" title="Find databases again / reread">⟳</button>
+        <span id="dbxMsg" class="dlg-desc"></span>
+      </div>
+      <div class="dbx-body">
+        <div id="dbxTree" class="dbx-tree"></div>
+        <div class="dbx-right">
+          <div class="dbx-query"><textarea id="dbxSql" spellcheck="false" placeholder="SQL (Ctrl+Enter runs; Ctrl+Shift+E in a .sql file)"></textarea><button id="dbxExec" class="primary">▶ Execute</button></div>
+          <div id="dbxResultMsg" class="dlg-desc"></div>
+          <div class="dbx-grid-wrap"><table id="dbxGrid" class="var-table dbx-grid"></table></div>
+        </div>
+      </div>
     </div>
     <div id="panel-locals" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="localsBody"></tbody></table></div>
     <div id="panel-watch" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="watchBody"></tbody></table></div>
@@ -386,6 +426,18 @@
 
   <!-- Debug > Performance Profiler -->
   <!-- Project > Configure Startup Projects (multiple startup projects) -->
+  <div id="aiDlg" class="modal hidden">
+    <div class="modal-box rf-dlg">
+      <div class="settings-head"><b>AI Chat: provider</b></div>
+      <label class="rf-row">Provider <select id="aiProvider"><option value="anthropic">Claude (Anthropic API)</option><option value="openai">OpenAI or an OpenAI-compatible API</option><option value="ollama">Ollama (local models)</option></select></label>
+      <label class="rf-row">Model <input id="aiModelIn" spellcheck="false"></label>
+      <label class="rf-row">API address <input id="aiUrl" spellcheck="false"></label>
+      <label id="aiKeyRow" class="rf-row">API key <input id="aiKey" type="password" spellcheck="false"></label>
+      <div class="dlg-desc">The key is kept encrypted by the operating system, not in settings.json. Requests go straight from Nova to the address above.</div>
+      <div class="modal-actions"><span class="tb-spacer"></span><button id="aiDlgSave" class="primary">Save</button><button id="aiDlgCancel">Cancel</button></div>
+    </div>
+  </div>
+
   <div id="rfDlg" class="modal hidden">
     <div class="modal-box rf-dlg">
       <div class="settings-head"><b id="rfTitle">Find in Files</b><span class="tb-spacer"></span><button id="rfClose">✕</button></div>
@@ -468,6 +520,10 @@
   <script src="splitview.js"></script>
   <script src="spellcheck.js"></script>
   <script src="endpoints.js"></script>
+  <script src="ai.js"></script>
+  <script src="containers.js"></script>
+  <script src="database.js"></script>
+  <script src="settingssync.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

@@ -16,6 +16,12 @@ const DEFAULTS = {
   autoSaveDelay: 1000,
   formatOnSave: false,
   editorConfig: true,       // follow .editorconfig files (indent, line endings, trailing whitespace, final newline)
+  aiProvider: 'anthropic',  // AI Chat: anthropic | openai (OpenAI-compatible) | ollama
+  aiModel: '',              // empty: the provider's default
+  aiBaseUrl: '',            // empty: the provider's default address
+  dockerPath: 'docker',     // Containers window: the docker CLI (or podman)
+  syncGistId: '',           // Settings Sync: the secret gist that holds the settings
+  syncGithubHost: 'github.com',
   spellCheck: true,         // spelling in comments, strings and text files
   inlayHints: false,        // inline parameter name / type hints from the language server (VS: off until Alt+F1)
   taskListTokens: 'TODO, HACK, UNDONE, FIXME', // comment tokens listed in the Task List

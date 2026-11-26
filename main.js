@@ -194,6 +194,9 @@ const MENU = [
     { label: 'Bookmark Window  (Ctrl+K, Ctrl+W)', cmd: 'showBookmarks' },
     { label: 'Call Hierarchy', cmd: 'callHierarchy' },
     { label: 'Endpoints Explorer', cmd: 'showEndpoints' },
+    { label: 'Containers', cmd: 'showContainers' },
+    { label: 'Database Explorer', cmd: 'showDatabase' },
+    { label: 'AI Chat', key: 'Ctrl+Alt+Shift+I', cmd: 'aiChat' },
     { label: 'Markdown Preview', key: 'Ctrl+Shift+V', cmd: 'markdownPreview', editor: true },
     '-',
     { label: 'Command Palette...', key: 'Ctrl+Shift+P', cmd: 'palette' },
@@ -306,6 +309,15 @@ const MENU = [
     { label: 'Split Terminal', key: 'Ctrl+Shift+5', cmd: 'splitTerminal' },
     '-',
     { label: 'Send HTTP Request (.http file)', key: 'Ctrl+Alt+S', cmd: 'httpSendRequest', editor: true },
+    { label: 'Execute SQL (.sql file)', key: 'Ctrl+Shift+E', cmd: 'executeSql', editor: true },
+    { label: 'AI', submenu: [
+      { label: 'Explain', cmd: 'aiExplain' }, { label: 'Fix', cmd: 'aiFix' }, { label: 'Write Tests', cmd: 'aiTests' }, { label: 'Document', cmd: 'aiDocument' },
+      '-', { label: 'New Chat', cmd: 'aiNewChat' }, { label: 'Provider and API Key...', cmd: 'aiSettings' }
+    ] },
+    { label: 'Settings Sync', submenu: [
+      { label: 'Upload Settings (GitHub Gist)', cmd: 'syncUpload' }, { label: 'Download Settings (GitHub Gist)...', cmd: 'syncDownload' },
+      '-', { label: 'Export Settings to File...', cmd: 'syncExport' }, { label: 'Import Settings from File...', cmd: 'syncImport' }
+    ] },
     '-',
     { label: 'IntelliSense: Restart Language Servers', cmd: 'lspRestart' },
     { label: 'IntelliSense: Show Language Server Log', cmd: 'lspShowLog' },
@@ -593,7 +605,8 @@ const services = [
   require('./main/pullrequests'),
   require('./main/workitems'),
   require('./main/diagnostics'), require('./main/profiler'),
-  require('./main/httpclient'), require('./main/spellcheck'), require('./main/endpoints')
+  require('./main/httpclient'), require('./main/spellcheck'), require('./main/endpoints'),
+  require('./main/ai'), require('./main/containers'), require('./main/database'), require('./main/settingssync')
 ];
 for (const s of services) s.register({ ipcMain: ipc, send, broadcast, ownerId, app, SKIP_DIRS, procPid: (id) => { const p = procs.get(id); return p ? p.child.pid : null; } });
 

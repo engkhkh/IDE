@@ -1,6 +1,6 @@
 {
   "name": "nova-ide",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Nova IDE - a Visual Studio style IDE for .NET, built with Electron and Monaco",
   "main": "main.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "monaco-editor": "0.52.2",
     "nspell": "^2.1.5",
     "pyright": "1.1.414",
+    "sql.js": "^1.17.0",
     "typescript": "5.9.3",
     "typescript-language-server": "4.4.0"
   },

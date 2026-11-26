@@ -224,3 +224,12 @@ kept stopping on SocketExceptions that the code handles (connect to every addres
 - [x] Endpoints Explorer: minimal APIs (MapGroup prefixes, MapMethods) + attribute-routed controllers; Generate Request into <Project>.http
 - [x] Tests: 5 unit tests (85 in all); 28 end-to-end checks
 
+### Phase 23 — AI Chat, Containers, Database Explorer, Settings Sync  ✅ (done)
+- [x] AI Chat window: Anthropic Messages API / OpenAI-compatible chat completions / Ollama, streamed (SSE) from the main process; selection or active file as context; Markdown answers with Insert / Copy; Explain / Fix / Write Tests / Document; Stop; keys encrypted with safeStorage
+- [x] Containers window over the docker CLI: list (json format), start / stop / restart / remove, logs, inspect, docker exec terminal, open port, Build Image, Compose Up / Down
+- [x] Database Explorer for SQLite (sql.js): schema tree (columns, keys, indexes, counts), Select Top 200, query box, Execute .sql (Ctrl+Shift+E), changes written back with a changed-on-disk check
+- [x] Settings Sync: secret GitHub Gist (upload / download, extensions reinstalled from the samples, dictionary words) + export / import file
+- [x] Hot Reload: a "No changes to apply" right after "Changes applied" (one save seen twice by dotnet watch) no longer replaces the applied status
+- [x] Tests: 4 unit tests (89 in all); 42 end-to-end checks against stand-ins (AI APIs, docker CLI, GitHub Gists); full packaged regression: 666 checks
+- [ ] Not done (needs a service or a large subsystem): remote development (SSH / WSL), Live Share, inline AI completions, SQL Server / PostgreSQL
+

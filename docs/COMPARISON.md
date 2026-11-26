@@ -1,6 +1,6 @@
 # Nova IDE next to Visual Studio 2026, JetBrains Rider and VS Code
 
-Written for Nova 0.21.0 and updated for 0.22.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
+Written for Nova 0.21.0 and updated for 0.22.0 and 0.23.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
 (18.x, generally available since 11 Nov 2025), Rider 2025.3 and later, and VS Code with its usual C# Dev Kit / REST
 Client extensions. "Ext." means the feature comes from an extension rather than the box.
 
@@ -40,8 +40,8 @@ Legend: ✅ has it · ◐ partly · ❌ no · **new** = added to Nova in Phase 2
 | Test Explorer, run / debug tests, code coverage | ✅ | ✅ (coverage in all editions since 17.x) | ✅ (dotCover) | ✅ |
 | **HTTP files** (.http with environments, request variables) | ✅ **new** | ✅ | ✅ (HTTP Client) | Ext. (REST Client) |
 | **Endpoints Explorer** (list the API's routes, generate .http requests) | ✅ **new in 0.22** | ✅ | ✅ | ❌ |
-| Docker / container tools, Compose | ❌ | ✅ | ✅ | Ext. |
-| Database explorer / SQL editor | ❌ | ◐ (SQL Server Object Explorer) | ✅ (DataGrip engine) | Ext. |
+| **Docker / container tools, Compose** | ✅ **new in 0.23** (Containers window; no debugging inside containers) | ✅ | ✅ | Ext. |
+| **Database explorer / SQL editor** | ◐ **new in 0.23** (SQLite) | ◐ (SQL Server Object Explorer) | ✅ (DataGrip engine) | Ext. |
 | Remote development (SSH, WSL, containers) | ❌ | ◐ | ✅ (Gateway) | ✅ |
 | Publish (folder, Azure) | ❌ | ✅ | ✅ | Ext. |
 
@@ -58,21 +58,23 @@ Legend: ✅ has it · ◐ partly · ❌ no · **new** = added to Nova in Phase 2
 
 | Feature | Nova 0.21 | Visual Studio 2026 | Rider | VS Code |
 |---|---|---|---|---|
-| AI chat / agent, next-edit suggestions | ❌ | ✅ (GitHub Copilot built in) | ✅ (JetBrains AI, Junie, Claude Agent) | ✅ (Copilot) |
+| **AI chat** / agent, next-edit suggestions | ◐ **new in 0.23** (chat + Explain / Fix / Tests / Document; Claude, OpenAI-compatible, Ollama; no agent mode or inline completions) | ✅ (GitHub Copilot built in) | ✅ (JetBrains AI, Junie, Claude Agent) | ✅ (Copilot) |
 | MCP servers for the AI | ❌ | ✅ | ✅ | ✅ |
 | Themes | ◐ (dark / light) | ✅ (Fluent UI, tinted themes) | ✅ (Islands) | ✅ |
 | Extensions | ✅ (own API + store) | ✅ | ✅ (plugins) | ✅ (largest marketplace) |
-| Settings sync across machines | ❌ | ✅ | ✅ | ✅ |
+| **Settings sync** across machines | ✅ **new in 0.23** (GitHub Gist or a file) | ✅ | ✅ | ✅ |
 | Runs on Windows / macOS / Linux | ✅ (Windows installer; runs on Linux) | Windows | ✅ | ✅ |
 
 ## What changed in Nova because of this
 
 Phase 21 added everything marked **new** above. Each has unit tests and end-to-end checks in the packaged app.
 
-Still missing, roughly in order of how much they matter to a .NET developer:
+Still missing after 0.23.0:
 
-1. **AI assistant** — the biggest difference today: all three others ship chat, agent mode and inline suggestions.
-2. **Docker / containers** — run and debug in a container, Compose.
-3. **Database tools**, **remote development** (SSH / WSL), **Live Share**, **settings sync**.
+1. **Remote development** (SSH / WSL / containers as the place the code runs) and **Live Share / Code With Me** —
+   both need a server-side component (a remote agent, a relay service) that Nova does not have.
+2. **AI agent mode and inline (ghost-text) completions** — Nova's AI is chat plus selection actions.
+3. **Debugging inside containers**, **SQL Server / PostgreSQL** connections, **Publish** (folder, Azure).
 
-0.22.0 added the split editor (document groups), split terminal, spell checker and Endpoints Explorer.
+0.22.0 added the split editor (document groups), split terminal, spell checker and Endpoints Explorer; 0.23.0 the AI
+Chat, Containers window, Database Explorer (SQLite) and Settings Sync.

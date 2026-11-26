@@ -14,6 +14,7 @@ const SETTINGS_SCHEMA = [
   { key: 'minimap', label: 'Show minimap', type: 'bool' },
   { key: 'renderWhitespace', label: 'Render whitespace', type: 'select', options: [['none', 'None'], ['selection', 'Selection'], ['all', 'All']] },
   { key: 'formatOnSave', label: 'Format document on save', type: 'bool' },
+  { key: 'dockerPath', label: 'Containers: docker command (docker, podman, or a full path)', type: 'text', placeholder: 'docker' },
   { key: 'spellCheck', label: 'Check spelling in comments, strings and text files', type: 'bool' },
   { key: 'editorConfig', label: 'Follow .editorconfig files (indentation, line endings, whitespace)', type: 'bool' },
   { key: 'taskListTokens', label: 'Task List comment tokens', type: 'text', placeholder: 'TODO, HACK, UNDONE, FIXME' },

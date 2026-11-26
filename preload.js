@@ -112,6 +112,10 @@ contextBridge.exposeInMainWorld('ide', {
   processEnv: invoke('http:processEnv'),
   spell: { check: invoke('spell:check'), suggest: invoke('spell:suggest'), add: invoke('spell:add'), userWords: invoke('spell:userWords') },
   endpoints: invoke('endpoints:scan'),
+  ai: { chat: invoke('ai:chat'), stop: invoke('ai:stop'), setKey: invoke('ai:setKey'), status: invoke('ai:status') },
+  docker: { list: invoke('docker:list'), action: invoke('docker:action'), logs: invoke('docker:logs'), inspect: invoke('docker:inspect'), path: invoke('docker:path') },
+  db: { schema: invoke('db:schema'), query: invoke('db:query'), create: invoke('db:create') },
+  sync: { upload: invoke('sync:upload'), download: invoke('sync:download') },
 
   // app shell: command-line open, logs, About, updates
   app: {
@@ -220,7 +224,7 @@ contextBridge.exposeInMainWorld('ide', {
   },
 
   on: (channel, fn) => {
-    const allowed = ['menu', 'proc:data', 'proc:exit', 'app:beforeClose', 'term:data', 'term:exit', 'fs:changed', 'settings:changed', 'lsp:state', 'lsp:notification', 'lsp:serverRequest', 'lsp:log', 'dap:message', 'dap:closed', 'dap:log', 'dap:installProgress', 'app:openPath', 'update:status', 'tests:output', 'tests:done', 'tests:debugReady', 'diag:sample'];
+    const allowed = ['menu', 'proc:data', 'proc:exit', 'app:beforeClose', 'term:data', 'term:exit', 'fs:changed', 'settings:changed', 'lsp:state', 'lsp:notification', 'lsp:serverRequest', 'lsp:log', 'dap:message', 'dap:closed', 'dap:log', 'dap:installProgress', 'app:openPath', 'update:status', 'tests:output', 'tests:done', 'tests:debugReady', 'diag:sample', 'ai:chunk', 'ai:done'];
     if (allowed.includes(channel)) ipcRenderer.on(channel, (_e, payload) => fn(payload));
   }
 });
