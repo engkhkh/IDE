@@ -1,6 +1,6 @@
 # Nova IDE next to Visual Studio 2026, JetBrains Rider and VS Code
 
-Written for Nova 0.21.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
+Written for Nova 0.21.0 and updated for 0.22.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
 (18.x, generally available since 11 Nov 2025), Rider 2025.3 and later, and VS Code with its usual C# Dev Kit / REST
 Client extensions. "Ext." means the feature comes from an extension rather than the box.
 
@@ -21,10 +21,10 @@ Legend: ✅ has it · ◐ partly · ❌ no · **new** = added to Nova in Phase 2
 | **Find / Replace in Files** with regex, whole word, file types | ✅ **new** (Find had no options, no Replace) | ✅ | ✅ | ✅ |
 | **EditorConfig** | ✅ **new** | ✅ | ✅ | Ext. |
 | **Markdown preview** | ✅ **new** | ✅ | ✅ | ✅ |
-| Split editor (two files side by side, editor groups) | ❌ | ✅ | ✅ | ✅ |
+| **Split editor** (two files side by side, document groups) | ✅ **new in 0.22** | ✅ | ✅ | ✅ |
 | Sticky scroll, minimap, bracket colors, multi-cursor | ✅ (Monaco) | ✅ | ✅ | ✅ |
 | Code cleanup on save / format on save | ◐ (format + EditorConfig) | ✅ | ✅ | ✅ |
-| Spell checker | ❌ | ✅ | ✅ | Ext. |
+| **Spell checker** | ✅ **new in 0.22** | ✅ | ✅ | Ext. |
 
 ## Build, run and debug
 
@@ -39,7 +39,7 @@ Legend: ✅ has it · ◐ partly · ❌ no · **new** = added to Nova in Phase 2
 | Diagnostic Tools, CPU / memory profiler, heap snapshots | ✅ | ✅ | ✅ (dotTrace / dotMemory) | ❌ |
 | Test Explorer, run / debug tests, code coverage | ✅ | ✅ (coverage in all editions since 17.x) | ✅ (dotCover) | ✅ |
 | **HTTP files** (.http with environments, request variables) | ✅ **new** | ✅ | ✅ (HTTP Client) | Ext. (REST Client) |
-| Endpoints Explorer (list the API's routes) | ❌ | ✅ | ✅ | ❌ |
+| **Endpoints Explorer** (list the API's routes, generate .http requests) | ✅ **new in 0.22** | ✅ | ✅ | ❌ |
 | Docker / container tools, Compose | ❌ | ✅ | ✅ | Ext. |
 | Database explorer / SQL editor | ❌ | ◐ (SQL Server Object Explorer) | ✅ (DataGrip engine) | Ext. |
 | Remote development (SSH, WSL, containers) | ❌ | ◐ | ✅ (Gateway) | ✅ |
@@ -72,7 +72,7 @@ Phase 21 added everything marked **new** above. Each has unit tests and end-to-e
 Still missing, roughly in order of how much they matter to a .NET developer:
 
 1. **AI assistant** — the biggest difference today: all three others ship chat, agent mode and inline suggestions.
-2. **Split editor groups** — two files side by side (the diff and merge views are the only split views now).
-3. **Docker / containers** — run and debug in a container, Compose.
-4. **Endpoints Explorer** — list an ASP.NET Core app's routes and generate .http requests from them.
-5. **Database tools**, **remote development** (SSH / WSL), **Live Share**, **settings sync**, **spell checker**.
+2. **Docker / containers** — run and debug in a container, Compose.
+3. **Database tools**, **remote development** (SSH / WSL), **Live Share**, **settings sync**.
+
+0.22.0 added the split editor (document groups), split terminal, spell checker and Endpoints Explorer.

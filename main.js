@@ -174,7 +174,8 @@ const MENU = [
       { label: 'Comment Selection  (Ctrl+K, Ctrl+C)', cmd: 'commentLines' },
       { label: 'Uncomment Selection  (Ctrl+K, Ctrl+U)', cmd: 'uncommentLines' },
       { label: 'Toggle Line Comment', key: 'Ctrl+/', cmd: 'comment', editor: true },
-      { label: 'Show/Hide Inline Hints  (Alt+F1)', cmd: 'toggleInlayHints' }
+      { label: 'Show/Hide Inline Hints  (Alt+F1)', cmd: 'toggleInlayHints' },
+      { label: 'Toggle Spell Checker', cmd: 'toggleSpellCheck' }
     ] },
     '-',
     { label: 'Go to Definition', key: 'F12', cmd: 'gotoDefinition', editor: true },
@@ -192,6 +193,7 @@ const MENU = [
     { label: 'Task List', cmd: 'showTaskList' },
     { label: 'Bookmark Window  (Ctrl+K, Ctrl+W)', cmd: 'showBookmarks' },
     { label: 'Call Hierarchy', cmd: 'callHierarchy' },
+    { label: 'Endpoints Explorer', cmd: 'showEndpoints' },
     { label: 'Markdown Preview', key: 'Ctrl+Shift+V', cmd: 'markdownPreview', editor: true },
     '-',
     { label: 'Command Palette...', key: 'Ctrl+Shift+P', cmd: 'palette' },
@@ -301,6 +303,7 @@ const MENU = [
   ]],
   ['&Tools', [
     { label: 'New Terminal', key: 'Ctrl+Shift+`', cmd: 'newTerminal' },
+    { label: 'Split Terminal', key: 'Ctrl+Shift+5', cmd: 'splitTerminal' },
     '-',
     { label: 'Send HTTP Request (.http file)', key: 'Ctrl+Alt+S', cmd: 'httpSendRequest', editor: true },
     '-',
@@ -313,6 +316,11 @@ const MENU = [
   ]],
   ['&Window', [
     { label: 'New Window', cmd: 'newWindow' },
+    '-',
+    { label: 'New Vertical Document Group (split editor)', key: 'Ctrl+Alt+\\', cmd: 'splitEditor' },
+    { label: 'Switch Document Group', key: 'Ctrl+Alt+PageDown', cmd: 'focusOtherGroup' },
+    { label: 'Close Document Group', cmd: 'closeSplit' },
+    '-',
     { windows: true }
   ]],
   ['&Help', [
@@ -585,7 +593,7 @@ const services = [
   require('./main/pullrequests'),
   require('./main/workitems'),
   require('./main/diagnostics'), require('./main/profiler'),
-  require('./main/httpclient')
+  require('./main/httpclient'), require('./main/spellcheck'), require('./main/endpoints')
 ];
 for (const s of services) s.register({ ipcMain: ipc, send, broadcast, ownerId, app, SKIP_DIRS, procPid: (id) => { const p = procs.get(id); return p ? p.child.pid : null; } });
 

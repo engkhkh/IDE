@@ -16,6 +16,7 @@ const DEFAULTS = {
   autoSaveDelay: 1000,
   formatOnSave: false,
   editorConfig: true,       // follow .editorconfig files (indent, line endings, trailing whitespace, final newline)
+  spellCheck: true,         // spelling in comments, strings and text files
   inlayHints: false,        // inline parameter name / type hints from the language server (VS: off until Alt+F1)
   taskListTokens: 'TODO, HACK, UNDONE, FIXME', // comment tokens listed in the Task List
   terminalShell: '',        // empty = auto (PowerShell on Windows)

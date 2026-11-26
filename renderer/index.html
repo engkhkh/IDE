@@ -67,6 +67,10 @@
           <button id="hcSend" title="Send the request at the cursor (Ctrl+Alt+S)">▷ Send</button>
           <select id="hcEnv" title="Environment (http-client.env.json)"></select>
         </div>
+        <section id="svPane" class="sv-pane hidden">
+          <div class="sv-head"><div id="sv-tabs" class="tabs"></div><span class="tb-spacer"></span><button id="svClose" title="Close the document group">✕</button></div>
+          <div id="sv-editor"></div>
+        </section>
         <aside id="sidePane" class="side-pane hidden">
           <div class="sp-head"><b id="spTitle"></b><span class="tb-spacer"></span><button id="spClose" title="Close">✕</button></div>
           <div id="spBody" class="sp-body"></div>
@@ -254,6 +258,7 @@
       <button data-panel="tasks">Task List <span id="tlCount" class="count">0</span></button>
       <button data-panel="bookmarks">Bookmarks <span id="bmCount" class="count">0</span></button>
       <button data-panel="callhierarchy">Call Hierarchy</button>
+      <button data-panel="endpoints">Endpoints</button>
       <span class="tab-sep"></span>
       <button data-panel="locals">Locals</button>
       <button data-panel="watch">Watch</button>
@@ -264,6 +269,7 @@
       <div id="termControls" class="hidden">
         <select id="termSelect" title="Terminal instances"></select>
         <button id="btnNewTerm" title="New Terminal (Ctrl+Shift+`)">＋</button>
+        <button id="btnSplitTerm" title="Split Terminal (Ctrl+Shift+5)">◫</button>
         <button id="btnKillTerm" title="Kill Terminal">🗑</button>
       </div>
       <button id="btnClearOutput" title="Clear">🧹</button>
@@ -310,6 +316,10 @@
     <div id="panel-callhierarchy" class="panel dbg-panel">
       <div class="err-bar"><button id="chRefresh" title="Refresh">⟳ Refresh</button><span class="dlg-desc">Ctrl+K, Ctrl+T on a method · double-click to expand · click to go to the call</span></div>
       <div id="chTree"></div>
+    </div>
+    <div id="panel-endpoints" class="panel dbg-panel">
+      <div class="err-bar"><input id="epFilter" placeholder="Filter endpoints" spellcheck="false" /><button id="epRefresh" title="Scan the projects again">⟳ Refresh</button><span id="epSummary" class="dlg-desc"></span></div>
+      <div id="epTree"></div>
     </div>
     <div id="panel-locals" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="localsBody"></tbody></table></div>
     <div id="panel-watch" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="watchBody"></tbody></table></div>
@@ -455,6 +465,9 @@
   <script src="markdown.js"></script>
   <script src="httpclient.js"></script>
   <script src="callhierarchy.js"></script>
+  <script src="splitview.js"></script>
+  <script src="spellcheck.js"></script>
+  <script src="endpoints.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

@@ -7,6 +7,7 @@ const SP = { owner: null, tab: null };
 
 // ---------------- side pane ----------------
 function spOpen(owner, tab, title) {
+  if (typeof SV !== 'undefined' && SV.tabs.length) svClose();
   SP.owner = owner; SP.tab = tab;
   $('#sidePane').classList.remove('hidden');
   $('#editorHost').classList.add('with-side');

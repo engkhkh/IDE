@@ -217,3 +217,10 @@ kept stopping on SocketExceptions that the code handles (connect to every addres
 - [x] Tests: 6 unit tests (80 in all); 52 end-to-end checks; full packaged regression
 - [ ] Left for later (bigger): AI assistant / Copilot-style chat, split editor groups, split terminal, Docker / containers, database explorer, remote development (SSH / WSL), Live Share
 
+### Phase 22 — Document groups, split terminal, spell checker, Endpoints Explorer  ✅ (done)
+- [x] Second document group beside the editor (own tabs, shared documents, Save/Close follow the focused group, Ctrl+Alt+PageDown)
+- [x] Split terminal: terminals in groups shown side by side; focus follows the click
+- [x] Spell checker: comments + prose strings (Monaco tokenizer), text files; identifiers split; quick fixes (corrections, Ignore, Add to dictionary); exclusion.dic + .editorconfig spelling_exclusion_path
+- [x] Endpoints Explorer: minimal APIs (MapGroup prefixes, MapMethods) + attribute-routed controllers; Generate Request into <Project>.http
+- [x] Tests: 5 unit tests (85 in all); 28 end-to-end checks
+

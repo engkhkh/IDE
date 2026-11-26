@@ -237,6 +237,22 @@ Features Visual Studio, Rider and VS Code all have, added after comparing them (
   click to go to the call (from the language server: TypeScript/JavaScript, C#, Python, ...).
 - **Inline hints** (Alt+F1 or Options > IntelliSense): parameter names and inferred types from the language server.
 
+## Document groups, split terminal, spell checker, Endpoints Explorer (Phase 22)
+- **Split editor** (Window > New Vertical Document Group, Ctrl+Alt+\\ or the editor's context menu "Split Editor
+  Right"): a second group beside the editor with its own tabs. Both groups edit the same documents. Ctrl+S and
+  Close work on the group you are typing in; Ctrl+Alt+PageDown switches groups; ✕ closes the group.
+- **Split terminal** (◫ in the Terminal window or Ctrl+Shift+5): terminals side by side in one group; click one to
+  make it the active one. A new terminal (＋) gets the whole panel again.
+- **Spell checker** (on by default; Edit > Advanced > Toggle Spell Checker, Options > Text Editor): comments and prose
+  strings in code, every word of Markdown / text files (not code blocks). Identifiers are split (`GetOrderTotl`
+  flags "Totl"); URLs, paths, e-mail addresses and short acronyms are skipped. Ctrl+. offers corrections, Ignore
+  and Add to dictionary (your words: `exclusion.dic` in Nova's user data folder; `.editorconfig`'s
+  `spelling_exclusion_path` adds a word list for the code base). English (Hunspell dictionary).
+- **Endpoints Explorer** (View > Endpoints Explorer): the HTTP endpoints of the folder's ASP.NET Core projects, read
+  from the source — minimal APIs (`app.MapGet`, nested `MapGroup` prefixes, `MapMethods`) and controllers (`[Route]`,
+  `[HttpGet("...")]`, `[controller]` / `[action]`). Double-click goes to the code; ⚡ Generate Request adds it to
+  `<Project>.http` with `@<Project>_HostAddress` from launchSettings.json, ready for ▷ Send request.
+
 ## HTTP files (.http / .rest)
 Test web APIs without leaving the IDE, with the same file format as Visual Studio (also read by Rider and the VS Code
 REST Client):
@@ -334,6 +350,7 @@ Memory is private bytes on Windows and resident memory on Linux/macOS.
 | Bookmark: toggle / next / previous / clear / window | Ctrl+K, Ctrl+K / Ctrl+K, Ctrl+N / Ctrl+K, Ctrl+P / Ctrl+K, Ctrl+L / Ctrl+K, Ctrl+W |
 | Call Hierarchy / Inline hints | Ctrl+K, Ctrl+T / Alt+F1 |
 | Markdown Preview / Send HTTP request | Ctrl+Shift+V / Ctrl+Alt+S |
+| Split editor / switch group / split terminal | Ctrl+Alt+\\ / Ctrl+Alt+PageDown / Ctrl+Shift+5 |
 | Go to line | Ctrl+G |
 | Solution Explorer / Output | Ctrl+Alt+L / Ctrl+Alt+O |
 | Command Palette / Go to File | Ctrl+Shift+P / Ctrl+P |
@@ -370,6 +387,8 @@ main/pdb.js         portable PDB reader (documents, sequence points) for .NET so
 main/heapgraph.js   heap graph: dominators / retained sizes, paths to root, referenced types
 main/profiler.js    Performance Profiler sessions: .NET / Node.js / Python, report building
 main/httpclient.js  sends the requests of .http files (no CORS; dev certificate on localhost)
+main/spellcheck.js  spell checker (nspell + Hunspell English dictionary, user words)
+main/endpoints.js   Endpoints Explorer: ASP.NET Core routes from minimal APIs and controllers
 main/lsp/         language server client: connection (JSON-RPC), servers (registry), index (manager)
 preload.js        secure bridge -> window.ide
 renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, git.js, workspace.js,
@@ -386,7 +405,8 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   launchprofiles.js (launchSettings.json), multistart.js (multiple startup projects),
                   editorconfig.js, bookmarks.js, tasklist.js, replaceinfiles.js (Find/Replace in Files),
                   markdown.js (Markdown preview + side pane), httpclient.js (.http files),
-                  callhierarchy.js (call hierarchy + inline hints)
+                  callhierarchy.js (call hierarchy + inline hints), splitview.js (second document group),
+                  spellcheck.js, endpoints.js (Endpoints Explorer)
 docs/             COMPARISON.md: Nova next to Visual Studio 2026, Rider and VS Code
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions

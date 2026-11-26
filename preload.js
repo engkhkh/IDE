@@ -110,6 +110,8 @@ contextBridge.exposeInMainWorld('ide', {
   httpSend: invoke('http:send'),
   httpCancel: invoke('http:cancel'),
   processEnv: invoke('http:processEnv'),
+  spell: { check: invoke('spell:check'), suggest: invoke('spell:suggest'), add: invoke('spell:add'), userWords: invoke('spell:userWords') },
+  endpoints: invoke('endpoints:scan'),
 
   // app shell: command-line open, logs, About, updates
   app: {

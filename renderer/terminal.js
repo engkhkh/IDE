@@ -17,10 +17,11 @@ const IDE_KEYS = [
   (e) => e.ctrlKey && !e.shiftKey && (e.key === 'p' || e.key === 'P'),
   (e) => e.ctrlKey && e.key === ',',
   (e) => e.key === 'F5' || e.key === 'F12',
-  (e) => e.ctrlKey && e.shiftKey && (e.key === 'B' || e.key === 'b')
+  (e) => e.ctrlKey && e.shiftKey && (e.key === 'B' || e.key === 'b'),
+  (e) => e.ctrlKey && e.shiftKey && e.code === 'Digit5' // Split Terminal
 ];
 
-async function newTerminal(cwd) {
+async function newTerminal(cwd, opts = {}) {
   if (typeof Terminal === 'undefined') { log('Terminal component missing: run "npm install" in the NovaIDE folder.\n', 'stderr'); showPanel('output'); return; }
   revealTerminalPanel();
   const host = $('#panel-terminal');
@@ -40,7 +41,10 @@ async function newTerminal(cwd) {
   try { fit.fit(); } catch {}
 
   const info = await api.term.create({ cwd: cwd || state.root || undefined, cols: term.cols, rows: term.rows });
-  const t = { id: info.id, term, fit, el, title: `${baseName(info.shell).replace(/\.exe$/i, '')} ${terminals.length + 1}`, exited: false };
+  // split: the new terminal shares the active one's group and they show side by side
+  const group = opts.split && activeTerm ? activeTerm.group : ++termGroupSeq;
+  const t = { id: info.id, term, fit, el, group, title: `${baseName(info.shell).replace(/\.exe$/i, '')} ${terminals.length + 1}`, exited: false };
+  el.addEventListener('focusin', () => { if (activeTerm !== t) { activeTerm = t; termLayout(); renderTermSelect(); } });
   terminals.push(t);
   if (info.mode === 'pipe') term.writeln('\x1b[33m(basic mode: native terminal module not loaded, run "npm install" to enable full terminal)\x1b[0m');
 
@@ -71,11 +75,23 @@ async function newTerminal(cwd) {
   return t;
 }
 
+let termGroupSeq = 0;
 function selectTerminal(t) {
   activeTerm = t;
-  for (const x of terminals) x.el.classList.toggle('active', x === t);
+  termLayout();
   renderTermSelect();
   if (t) requestAnimationFrame(() => { fitActive(); t.term.focus(); });
+}
+// the active terminal's group fills the panel, its members side by side
+function termLayout() {
+  const group = activeTerm ? terminals.filter((x) => x.group === activeTerm.group) : [];
+  for (const x of terminals) {
+    const i = group.indexOf(x);
+    x.el.classList.toggle('active', i >= 0);
+    x.el.classList.toggle('focused', x === activeTerm && group.length > 1);
+    x.el.style.left = i >= 0 && group.length > 1 ? `calc(${(100 * i) / group.length}% + 8px)` : '';
+    x.el.style.right = i >= 0 && group.length > 1 ? `calc(${(100 * (group.length - i - 1)) / group.length}% + 4px)` : '';
+  }
 }
 
 function renderTermSelect() {
@@ -83,7 +99,8 @@ function renderTermSelect() {
   sel.innerHTML = '';
   terminals.forEach((t, i) => {
     const o = document.createElement('option');
-    o.value = i; o.textContent = t.title + (t.exited ? ' (exited)' : '');
+    const mates = terminals.filter((x) => x.group === t.group);
+    o.value = i; o.textContent = t.title + (mates.length > 1 ? ` (split ${mates.indexOf(t) + 1}/${mates.length})` : '') + (t.exited ? ' (exited)' : '');
     if (t === activeTerm) o.selected = true;
     sel.appendChild(o);
   });
@@ -96,12 +113,13 @@ async function killTerminal(t = activeTerm) {
   t.term.dispose();
   t.el.remove();
   terminals.splice(terminals.indexOf(t), 1);
-  selectTerminal(terminals[terminals.length - 1] || null);
+  const mate = terminals.filter((x) => x.group === t.group).pop();
+  selectTerminal(mate || terminals[terminals.length - 1] || null);
 }
 
 function fitActive() {
   if (!activeTerm || !$('#panel-terminal').classList.contains('active')) return;
-  try { activeTerm.fit.fit(); } catch {}
+  for (const x of terminals) if (x.group === activeTerm.group) { try { x.fit.fit(); } catch {} }
 }
 
 api.on('term:data', ({ id, data }) => { const t = terminals.find((x) => x.id === id); if (t) t.term.write(data); });
@@ -148,6 +166,8 @@ $('#btnNewTerm').onclick = () => newTerminal();
 $('#btnKillTerm').onclick = () => killTerminal();
 commands.showTerminal = () => showPanel('terminal');
 commands.newTerminal = () => newTerminal();
+commands.splitTerminal = () => { if (!activeTerm) return newTerminal(); return newTerminal(undefined, { split: true }); };
+$('#btnSplitTerm').onclick = () => commands.splitTerminal();
 commands.killTerminal = () => killTerminal();
 
 // Open a terminal in a specific folder (used by the Solution Explorer context menu)
