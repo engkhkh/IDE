@@ -219,6 +219,52 @@ debugger), Start without debugging, or None, its launch profile (Debug Target), 
   and runs the others; Ctrl+F5 runs them all without the debugger. Output lines start with `[Project]`.
 - A program that ends leaves the others running; Shift+F5 stops them all.
 
+## Editing and navigation (Phase 21)
+Features Visual Studio, Rider and VS Code all have, added after comparing them (see [docs/COMPARISON.md](docs/COMPARISON.md)):
+- **Bookmarks**: Ctrl+K, Ctrl+K toggles one on the current line; Ctrl+K, Ctrl+N / Ctrl+P go to the next / previous
+  across all files; Ctrl+K, Ctrl+L clears them; Ctrl+K, Ctrl+W opens the Bookmark window (double-click a name to rename).
+  A bookmark moves with its line as you edit, and they are kept per folder.
+- **Task List** (View > Task List): the `TODO`, `HACK`, `UNDONE` and `FIXME` comments of the whole folder, in any
+  language. Saved files update at once. Change the tokens in Options > Text Editor.
+- **Find / Replace in Files** (Ctrl+Shift+F / Ctrl+Shift+H): match case, whole word, regular expressions (`$1` in the
+  replacement), file types (`*.cs; *.json`). Replace All edits open files in the editor (one Undo step, you save
+  them) and writes the other files.
+- **EditorConfig**: `.editorconfig` files are followed — indent style and size, tab width, line endings, trailing
+  whitespace and final newline on save. The status bar shows ⚙ EditorConfig when one applies (hover for the values).
+- **Markdown preview** (Ctrl+Shift+V or 👁 Preview in the status bar): beside the editor, updated as you type, code
+  blocks colored, relative links open the file. HTML in the Markdown is shown as text.
+- **View Call Hierarchy** (Ctrl+K, Ctrl+T or the editor's context menu): Calls To / Calls From a method, expandable,
+  click to go to the call (from the language server: TypeScript/JavaScript, C#, Python, ...).
+- **Inline hints** (Alt+F1 or Options > IntelliSense): parameter names and inferred types from the language server.
+
+## HTTP files (.http / .rest)
+Test web APIs without leaving the IDE, with the same file format as Visual Studio (also read by Rider and the VS Code
+REST Client):
+```http
+@base = {{HostAddress}}/api
+
+# @name login
+POST {{base}}/token
+Content-Type: application/json
+
+{ "user": "{{User}}" }
+
+###
+GET {{base}}/orders
+Authorization: Bearer {{login.response.body.$.token}}
+```
+- **▷ Send request** above each request (or Ctrl+Alt+S at the cursor); the response opens beside the editor:
+  status, time, size, pretty-printed body, headers, the request that was sent, raw. gzip/deflate/br are unpacked.
+- Environments: the nearest `http-client.env.json` (in the file's folder or a parent), with `$shared` defaults and
+  your own values in `http-client.env.json.user`; pick one in the box at the top right of the editor.
+  Variables in the .http file win over the environment.
+- Request variables: `{{name.response.body.$.json.path}}`, `{{name.response.headers.Location}}`,
+  `{{name.request.body.*}}` — send the named request first.
+- Dynamic variables: `{{$guid}}`, `{{$randomInt 1 100}}`, `{{$timestamp}}`, `{{$datetime iso8601 1 d}}`,
+  `{{$localDatetime "dd-MM-yyyy"}}`, `{{$processEnv NAME}}`, `{{$dotenv NAME}}`. `{{` completes variable names.
+- Requests go out from Nova itself (no browser CORS); the ASP.NET Core development certificate is accepted for
+  localhost. Secrets stored in Azure Key Vault / DPAPI providers are not read: put them in the `.user` file.
+
 ## Hot Reload (.NET)
 **Debug > Start With Hot Reload (Alt+Shift+F5)** or the 🔥 toolbar button runs the startup project under `dotnet watch`.
 Edit code while the app runs and save: the change is applied to the running app, no restart.
@@ -284,7 +330,10 @@ Memory is private bytes on Windows and resident memory on Linux/macOS.
 | Diagnostic Tools / Performance Profiler | Ctrl+Alt+F2 / Alt+F2 |
 | Start With Hot Reload / Apply Code Changes | Alt+Shift+F5 / Alt+F10 |
 | Build | Ctrl+Shift+B |
-| Find / Replace / Find in Files | Ctrl+F / Ctrl+H / Ctrl+Shift+F |
+| Find / Replace / Find in Files / Replace in Files | Ctrl+F / Ctrl+H / Ctrl+Shift+F / Ctrl+Shift+H |
+| Bookmark: toggle / next / previous / clear / window | Ctrl+K, Ctrl+K / Ctrl+K, Ctrl+N / Ctrl+K, Ctrl+P / Ctrl+K, Ctrl+L / Ctrl+K, Ctrl+W |
+| Call Hierarchy / Inline hints | Ctrl+K, Ctrl+T / Alt+F1 |
+| Markdown Preview / Send HTTP request | Ctrl+Shift+V / Ctrl+Alt+S |
 | Go to line | Ctrl+G |
 | Solution Explorer / Output | Ctrl+Alt+L / Ctrl+Alt+O |
 | Command Palette / Go to File | Ctrl+Shift+P / Ctrl+P |
@@ -320,6 +369,7 @@ main/eventpipe.js   .NET diagnostics IPC + nettrace reader (CPU samples, method 
 main/pdb.js         portable PDB reader (documents, sequence points) for .NET source lines
 main/heapgraph.js   heap graph: dominators / retained sizes, paths to root, referenced types
 main/profiler.js    Performance Profiler sessions: .NET / Node.js / Python, report building
+main/httpclient.js  sends the requests of .http files (no CORS; dev certificate on localhost)
 main/lsp/         language server client: connection (JSON-RPC), servers (registry), index (manager)
 preload.js        secure bridge -> window.ide
 renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, git.js, workspace.js,
@@ -333,7 +383,11 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   workitems.js (Work Items window, # suggestions, #123 links),
                   diagnostics.js (Diagnostic Tools window), profiler.js (profiler options, performance report),
                   heapsnap.js (.NET heap snapshot view), hotreload.js (.NET Hot Reload),
-                  launchprofiles.js (launchSettings.json), multistart.js (multiple startup projects)
+                  launchprofiles.js (launchSettings.json), multistart.js (multiple startup projects),
+                  editorconfig.js, bookmarks.js, tasklist.js, replaceinfiles.js (Find/Replace in Files),
+                  markdown.js (Markdown preview + side pane), httpclient.js (.http files),
+                  callhierarchy.js (call hierarchy + inline hints)
+docs/             COMPARISON.md: Nova next to Visual Studio 2026, Rider and VS Code
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions
 test/             unit tests (npm test)

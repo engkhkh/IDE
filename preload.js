@@ -106,6 +106,10 @@ contextBridge.exposeInMainWorld('ide', {
   exists: invoke('fs:exists'),
   projectsDir: invoke('app:projectsDir'),
   openExternal: invoke('app:openExternal'),
+  // .http / .rest files
+  httpSend: invoke('http:send'),
+  httpCancel: invoke('http:cancel'),
+  processEnv: invoke('http:processEnv'),
 
   // app shell: command-line open, logs, About, updates
   app: {

@@ -39,8 +39,14 @@ function focusContext() {
   return 'none';
 }
 
+// the editor's own Ctrl+K chords (Ctrl+K, Ctrl+D format, Ctrl+K, Ctrl+K bookmark, ...): the second key belongs to
+// the editor too, even when it is a shortcut of its own (Ctrl+N, Ctrl+P, Ctrl+W, Ctrl+L)
+let editorChord = 0;
 window.addEventListener('keydown', (e) => {
   if (/^(Control|Shift|Alt|Meta)$/.test(e.key)) return;
+  if (editorChord && Date.now() - editorChord < 2500 && focusContext() === 'editor') { editorChord = 0; return; }
+  editorChord = 0;
+  if (e.code === 'KeyK' && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && focusContext() === 'editor' && !pendingChord) { editorChord = Date.now(); return; }
   // second key of a chord
   if (pendingChord) {
     const first = pendingChord;

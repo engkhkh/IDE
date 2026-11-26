@@ -15,6 +15,9 @@ const DEFAULTS = {
   autoSave: 'off',          // off | afterDelay | onFocusChange
   autoSaveDelay: 1000,
   formatOnSave: false,
+  editorConfig: true,       // follow .editorconfig files (indent, line endings, trailing whitespace, final newline)
+  inlayHints: false,        // inline parameter name / type hints from the language server (VS: off until Alt+F1)
+  taskListTokens: 'TODO, HACK, UNDONE, FIXME', // comment tokens listed in the Task List
   terminalShell: '',        // empty = auto (PowerShell on Windows)
   terminalFontSize: 13,
   explorerAutoRefresh: true,

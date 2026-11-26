@@ -63,6 +63,14 @@
           <div id="recent"></div>
         </div>
         <div id="editor"></div>
+        <div id="hcBar" class="hc-bar hidden">
+          <button id="hcSend" title="Send the request at the cursor (Ctrl+Alt+S)">▷ Send</button>
+          <select id="hcEnv" title="Environment (http-client.env.json)"></select>
+        </div>
+        <aside id="sidePane" class="side-pane hidden">
+          <div class="sp-head"><b id="spTitle"></b><span class="tb-spacer"></span><button id="spClose" title="Close">✕</button></div>
+          <div id="spBody" class="sp-body"></div>
+        </aside>
         <div id="historyView" class="hidden">
           <div class="gh-bar">
             <b id="ghTitle">Git Repository</b>
@@ -243,6 +251,9 @@
       <button data-panel="find">Find Results</button>
       <button data-panel="terminal">Terminal</button>
       <button data-panel="coverage">Code Coverage Results</button>
+      <button data-panel="tasks">Task List <span id="tlCount" class="count">0</span></button>
+      <button data-panel="bookmarks">Bookmarks <span id="bmCount" class="count">0</span></button>
+      <button data-panel="callhierarchy">Call Hierarchy</button>
       <span class="tab-sep"></span>
       <button data-panel="locals">Locals</button>
       <button data-panel="watch">Watch</button>
@@ -283,6 +294,23 @@
       </div>
       <div class="cov-scroll"><table class="var-table cov-table"><thead><tr><th>Hierarchy</th><th>Covered (lines)</th><th>Not Covered (lines)</th><th>Covered (% lines)</th><th>Branches</th></tr></thead><tbody id="covBody"></tbody></table></div>
     </div>
+    <div id="panel-tasks" class="panel dbg-panel">
+      <div class="err-bar"><input id="tlFilter" placeholder="Search Task List" spellcheck="false" /><button id="tlRefresh" title="Scan the folder again">⟳ Refresh</button><span id="tlSummary" class="dlg-desc"></span></div>
+      <table class="var-table"><thead><tr><th>Token</th><th>Description</th><th>File</th><th>Line</th></tr></thead><tbody id="tlBody"></tbody></table>
+    </div>
+    <div id="panel-bookmarks" class="panel dbg-panel">
+      <div class="err-bar">
+        <button id="bmToggle" title="Toggle Bookmark (Ctrl+K, Ctrl+K)">🔖 Toggle</button>
+        <button id="bmPrev" title="Previous Bookmark (Ctrl+K, Ctrl+P)">◀ Previous</button>
+        <button id="bmNext" title="Next Bookmark (Ctrl+K, Ctrl+N)">Next ▶</button>
+        <button id="bmClear" title="Delete All Bookmarks (Ctrl+K, Ctrl+L)">🗑 Delete All</button>
+      </div>
+      <table class="var-table"><thead><tr><th>Bookmark</th><th>File</th><th>Line</th><th>Text</th><th></th></tr></thead><tbody id="bmBody"></tbody></table>
+    </div>
+    <div id="panel-callhierarchy" class="panel dbg-panel">
+      <div class="err-bar"><button id="chRefresh" title="Refresh">⟳ Refresh</button><span class="dlg-desc">Ctrl+K, Ctrl+T on a method · double-click to expand · click to go to the call</span></div>
+      <div id="chTree"></div>
+    </div>
     <div id="panel-locals" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="localsBody"></tbody></table></div>
     <div id="panel-watch" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="watchBody"></tbody></table></div>
     <div id="panel-callstack" class="panel dbg-panel"><table class="var-table"><thead><tr><th></th><th>Name</th><th>File</th><th>Line</th></tr></thead><tbody id="stackBody"></tbody></table></div>
@@ -305,6 +333,8 @@
     <span id="stUpdate" class="clickable hidden" title="Nova IDE update"></span>
     <span id="stLsp" class="clickable hidden" title="IntelliSense status (click for details)"></span>
     <span id="stBranch" class="clickable hidden" title="Switch branch"></span>
+    <span id="mdPreviewBtn" class="clickable hidden" title="Markdown preview (Ctrl+Shift+V)">👁 Preview</span>
+    <span id="stEditorConfig" class="hidden" title="EditorConfig">⚙ EditorConfig</span>
     <span id="stPos"></span>
     <span id="stLang"></span>
     <span>UTF-8</span>
@@ -346,6 +376,22 @@
 
   <!-- Debug > Performance Profiler -->
   <!-- Project > Configure Startup Projects (multiple startup projects) -->
+  <div id="rfDlg" class="modal hidden">
+    <div class="modal-box rf-dlg">
+      <div class="settings-head"><b id="rfTitle">Find in Files</b><span class="tb-spacer"></span><button id="rfClose">✕</button></div>
+      <label class="rf-row">Find what <input id="rfFind" spellcheck="false"></label>
+      <label id="rfReplaceRow" class="rf-row">Replace with <input id="rfReplace" spellcheck="false"></label>
+      <label class="rf-row">File types <input id="rfInclude" spellcheck="false" placeholder="e.g. *.cs; *.json (empty: all text files)"></label>
+      <div class="rf-opts">
+        <label><input type="checkbox" id="rfCase"> Match case</label>
+        <label><input type="checkbox" id="rfWord"> Match whole word</label>
+        <label><input type="checkbox" id="rfRegex"> Use regular expressions</label>
+      </div>
+      <div id="rfMsg" class="dlg-desc"></div>
+      <div class="modal-actions"><span class="tb-spacer"></span><button id="rfFindAll" class="primary">Find All</button><button id="rfReplaceAll">Replace All</button><button id="rfCancel">Cancel</button></div>
+    </div>
+  </div>
+
   <div id="msDlg" class="modal hidden">
     <div class="modal-box ms-dlg">
       <div class="settings-head"><b>Configure Startup Projects</b><span class="tb-spacer"></span><button id="msClose">✕</button></div>
@@ -402,6 +448,13 @@
   <script src="hotreload.js"></script>
   <script src="launchprofiles.js"></script>
   <script src="multistart.js"></script>
+  <script src="editorconfig.js"></script>
+  <script src="bookmarks.js"></script>
+  <script src="tasklist.js"></script>
+  <script src="replaceinfiles.js"></script>
+  <script src="markdown.js"></script>
+  <script src="httpclient.js"></script>
+  <script src="callhierarchy.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

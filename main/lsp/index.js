@@ -51,6 +51,8 @@ const CLIENT_CAPABILITIES = {
     },
     formatting: {}, rangeFormatting: {},
     rename: { prepareSupport: true },
+    callHierarchy: {},
+    inlayHint: { resolveSupport: { properties: ['tooltip', 'textEdits', 'label.tooltip', 'label.location', 'label.command'] } },
     publishDiagnostics: { relatedInformation: true, tagSupport: { valueSet: [1, 2] }, codeDescriptionSupport: true }
   },
   window: { workDoneProgress: true, showMessage: { messageActionItem: { additionalPropertiesSupport: false } } }

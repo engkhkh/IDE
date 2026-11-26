@@ -204,3 +204,16 @@ kept stopping on SocketExceptions that the code handles (connect to every addres
 - [x] Multiple startup projects: Visual Studio .slnLaunch / .slnLaunch.user (reads "Path" and the older "Name" form, writes both), startup box lists the profiles, Configure Startup Projects dialog (action, debug target, order, share)
 - [x] F5: one build, each "Start" project in its own debugger (peer sessions: breakpoints, status names the project, one ending leaves the others), the others with dotnet run --no-build; Ctrl+F5 all without the debugger; [Project] prefixes; Shift+F5 stops all; browsers per launch profile
 - [x] Tests: 4 unit tests; 22 end-to-end checks (Server + Producer debugged, Consumer without the debugger)
+
+### Phase 21 — Gaps found by comparing with Visual Studio 2026, Rider and VS Code  ✅ (done)
+- [x] docs/COMPARISON.md: feature-by-feature table of the four IDEs, what Nova lacked, what was added, what is left
+- [x] Bookmarks (Ctrl+K chords, Bookmark window, follow edits, kept per folder); the editor's Ctrl+K chords no longer lose their second key to Ctrl+N / Ctrl+P / Ctrl+W / Ctrl+L
+- [x] Task List (TODO / HACK / UNDONE / FIXME in any comment style, tokens in Options, live on save)
+- [x] Find / Replace in Files dialog: match case, whole word, regex with $1, file types; open files edited in the editor (one Undo), others on disk
+- [x] EditorConfig: indent style/size, tab width, end_of_line, trim_trailing_whitespace, insert_final_newline (globs incl. ** {a,b} {1..3} [!x])
+- [x] Markdown preview beside the editor (tables, task lists, colored code, safe: raw HTML shown as text, javascript: links dropped)
+- [x] .http / .rest files like Visual Studio: Send request lenses, response pane, http-client.env.json (+ .user, $shared), request variables (JSONPath, headers), dynamic variables, gzip, dev certificate on localhost
+- [x] LSP: View Call Hierarchy (Calls To / Calls From, expandable) and inline hints (Alt+F1), client capabilities announced
+- [x] Tests: 6 unit tests (80 in all); 52 end-to-end checks; full packaged regression
+- [ ] Left for later (bigger): AI assistant / Copilot-style chat, split editor groups, split terminal, Docker / containers, database explorer, remote development (SSH / WSL), Live Share
+

@@ -104,7 +104,7 @@ const procs = new Map(); // id -> { child, owner }
 let nextProcId = 1;
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'bin', 'obj', 'build', 'dist', '.dart_tool', '.vs', '.idea', '__pycache__']);
-const TEXT_EXT = /\.(cs|csproj|sln|xaml|razor|cshtml|js|mjs|cjs|jsx|ts|tsx|json|html?|css|scss|less|md|txt|xml|config|py|java|kt|dart|c|h|cpp|hpp|go|rs|php|rb|sql|sh|ps1|bat|ya?ml|swift|vb|fs|gradle|props|targets|ini|env)$/i;
+const TEXT_EXT = /\.(http|rest|editorconfig|cs|csproj|sln|xaml|razor|cshtml|js|mjs|cjs|jsx|ts|tsx|json|html?|css|scss|less|md|txt|xml|config|py|java|kt|dart|c|h|cpp|hpp|go|rs|php|rb|sql|sh|ps1|bat|ya?ml|swift|vb|fs|gradle|props|targets|ini|env)$/i;
 
 // to the window whose request is running; with no request (startup, timers of main) to every window
 function send(channel, payload) {
@@ -146,6 +146,14 @@ const MENU = [
     { label: 'Find', key: 'Ctrl+F', cmd: 'find', editor: true },
     { label: 'Replace', key: 'Ctrl+H', cmd: 'replace', editor: true },
     { label: 'Find in Files', key: 'Ctrl+Shift+F', cmd: 'findInFiles' },
+    { label: 'Replace in Files', key: 'Ctrl+Shift+H', cmd: 'replaceInFiles' },
+    '-',
+    { label: 'Bookmarks', submenu: [
+      { label: 'Toggle Bookmark  (Ctrl+K, Ctrl+K)', cmd: 'bookmarkToggle' },
+      { label: 'Next Bookmark  (Ctrl+K, Ctrl+N)', cmd: 'bookmarkNext' },
+      { label: 'Previous Bookmark  (Ctrl+K, Ctrl+P)', cmd: 'bookmarkPrev' },
+      { label: 'Clear All Bookmarks  (Ctrl+K, Ctrl+L)', cmd: 'bookmarkClearAll' }
+    ] },
     '-',
     { label: 'Go To', submenu: [
       { label: 'Go to All (symbols)...', key: 'Ctrl+T', cmd: 'gotoSymbolWorkspace' },
@@ -165,13 +173,15 @@ const MENU = [
       { label: 'Format Document  (Ctrl+K, Ctrl+D)', key: 'Shift+Alt+F', cmd: 'format', editor: true },
       { label: 'Comment Selection  (Ctrl+K, Ctrl+C)', cmd: 'commentLines' },
       { label: 'Uncomment Selection  (Ctrl+K, Ctrl+U)', cmd: 'uncommentLines' },
-      { label: 'Toggle Line Comment', key: 'Ctrl+/', cmd: 'comment', editor: true }
+      { label: 'Toggle Line Comment', key: 'Ctrl+/', cmd: 'comment', editor: true },
+      { label: 'Show/Hide Inline Hints  (Alt+F1)', cmd: 'toggleInlayHints' }
     ] },
     '-',
     { label: 'Go to Definition', key: 'F12', cmd: 'gotoDefinition', editor: true },
     { label: 'Peek Definition', key: 'Alt+F12', cmd: 'peekDefinition', editor: true },
     { label: 'Go to Implementation', key: 'Ctrl+F12', cmd: 'gotoImplementation', editor: true },
-    { label: 'Find All References', key: 'Shift+F12', cmd: 'findReferences', editor: true }
+    { label: 'Find All References', key: 'Shift+F12', cmd: 'findReferences', editor: true },
+    { label: 'View Call Hierarchy  (Ctrl+K, Ctrl+T)', cmd: 'callHierarchy' }
   ]],
   ['&View', [
     { label: 'Solution Explorer', key: 'Ctrl+Alt+L', cmd: 'toggleExplorer' },
@@ -179,6 +189,10 @@ const MENU = [
     { label: 'Error List', key: 'Ctrl+\\', cmd: 'showErrors' },
     { label: 'Terminal', key: 'Ctrl+`', cmd: 'showTerminal' },
     { label: 'Git Changes', key: 'Ctrl+Alt+G', cmd: 'showGit' },
+    { label: 'Task List', cmd: 'showTaskList' },
+    { label: 'Bookmark Window  (Ctrl+K, Ctrl+W)', cmd: 'showBookmarks' },
+    { label: 'Call Hierarchy', cmd: 'callHierarchy' },
+    { label: 'Markdown Preview', key: 'Ctrl+Shift+V', cmd: 'markdownPreview', editor: true },
     '-',
     { label: 'Command Palette...', key: 'Ctrl+Shift+P', cmd: 'palette' },
     '-',
@@ -287,6 +301,8 @@ const MENU = [
   ]],
   ['&Tools', [
     { label: 'New Terminal', key: 'Ctrl+Shift+`', cmd: 'newTerminal' },
+    '-',
+    { label: 'Send HTTP Request (.http file)', key: 'Ctrl+Alt+S', cmd: 'httpSendRequest', editor: true },
     '-',
     { label: 'IntelliSense: Restart Language Servers', cmd: 'lspRestart' },
     { label: 'IntelliSense: Show Language Server Log', cmd: 'lspShowLog' },
@@ -486,23 +502,28 @@ ipc.handle('project:detect', async (_e, root) => {
 // ---------- Find in files ----------
 ipc.handle('search:inFiles', async (_e, root, query, opts = {}) => {
   const results = [];
-  const needle = opts.caseSensitive ? query : query.toLowerCase();
+  const limit = opts.limit || 1000;
+  // plain text, whole word or a regular expression (Find/Replace in Files, Task List)
+  let re;
+  try { re = searchRegex(query, opts); } catch (e) { return { error: `Invalid regular expression: ${e.message}` }; }
+  const include = includeMask(opts.include);
   async function walk(dir) {
-    if (results.length >= 1000) return;
+    if (results.length >= limit) return;
     let entries;
     try { entries = await fs.readdir(dir, { withFileTypes: true }); } catch { return; }
     for (const e of entries) {
       const full = path.join(dir, e.name);
       if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) await walk(full); continue; }
-      if (!TEXT_EXT.test(e.name)) continue;
+      if (!(include ? include.test(e.name) : TEXT_EXT.test(e.name))) continue;
       try {
         const st = await fs.stat(full);
         if (st.size > 1024 * 1024) continue;
         const lines = (await fs.readFile(full, 'utf8')).split(/\r?\n/);
         lines.forEach((line, i) => {
-          const hay = opts.caseSensitive ? line : line.toLowerCase();
-          const col = hay.indexOf(needle);
-          if (col >= 0 && results.length < 1000) results.push({ file: full, line: i + 1, col: col + 1, text: line.trim().slice(0, 200) });
+          if (results.length >= limit) return;
+          re.lastIndex = 0;
+          const m = re.exec(line);
+          if (m) results.push({ file: full, line: i + 1, col: m.index + 1, len: m[0].length, text: line.trim().slice(0, 200), groups: opts.groups ? [...m] : undefined });
         });
       } catch {}
     }
@@ -510,6 +531,18 @@ ipc.handle('search:inFiles', async (_e, root, query, opts = {}) => {
   await walk(root);
   return results;
 });
+function searchRegex(query, opts) {
+  let src = opts.regex ? query : query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (opts.wholeWord) src = `\\b${src}\\b`;
+  return new RegExp(src, opts.caseSensitive ? 'g' : 'gi');
+}
+// "*.cs; *.json" -> a file name test (no mask: the usual text files)
+function includeMask(mask) {
+  const parts = String(mask || '').split(/[;,]/).map((x) => x.trim()).filter(Boolean);
+  if (!parts.length) return null;
+  const glob = (g) => g.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.');
+  return new RegExp(`^(${parts.map(glob).join('|')})$`, 'i');
+}
 
 // ---------- Processes (build / run) ----------
 ipc.handle('proc:run', (_e, { command, cwd, env: extraEnv }) => {
@@ -551,7 +584,8 @@ const services = [
   require('./main/gitmerge'),
   require('./main/pullrequests'),
   require('./main/workitems'),
-  require('./main/diagnostics'), require('./main/profiler')
+  require('./main/diagnostics'), require('./main/profiler'),
+  require('./main/httpclient')
 ];
 for (const s of services) s.register({ ipcMain: ipc, send, broadcast, ownerId, app, SKIP_DIRS, procPid: (id) => { const p = procs.get(id); return p ? p.child.pid : null; } });
 

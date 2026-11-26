@@ -54,7 +54,13 @@ const SERVERS = [
     initializationOptions: () => {
       let tsserverPath;
       try { tsserverPath = unpacked(require.resolve('typescript/lib/tsserver.js')); } catch {}
-      return { hostInfo: 'nova-ide', tsserver: tsserverPath ? { path: tsserverPath } : undefined, preferences: { includeCompletionsForModuleExports: true, includeCompletionsWithInsertText: true } };
+      return { hostInfo: 'nova-ide', tsserver: tsserverPath ? { path: tsserverPath } : undefined, preferences: {
+        includeCompletionsForModuleExports: true, includeCompletionsWithInsertText: true,
+        // inline hints (shown only while the "Inline hints" option is on)
+        includeInlayParameterNameHints: 'literals', includeInlayParameterNameHintsWhenArgumentMatchesName: false,
+        includeInlayFunctionParameterTypeHints: true, includeInlayVariableTypeHints: true, includeInlayVariableTypeHintsWhenTypeMatchesName: false,
+        includeInlayPropertyDeclarationTypeHints: true, includeInlayFunctionLikeReturnTypeHints: true, includeInlayEnumMemberValueHints: true
+      } };
     }
   },
   {

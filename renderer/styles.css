@@ -787,3 +787,45 @@ body.theme-light .gh-chip.current { color: #fff; }
 .ms-table tr.ms-none td:first-child { color: var(--fg-dim); }
 .ms-order button { padding: 0 6px; }
 .ms-share { display: block; margin: 8px 0 4px; font-size: 12px; }
+
+/* ---------- Phase 21: bookmarks, Task List, Replace in Files, side pane (Markdown / HTTP), call hierarchy ---------- */
+.bm-glyph { background: #4da3ff; border-radius: 2px; width: 8px !important; height: 12px !important; margin: 4px 0 0 8px; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); }
+#panel-bookmarks .var-table th:nth-child(1) { width: 14%; } #panel-bookmarks .var-table th:nth-child(2) { width: 30%; }
+#panel-bookmarks .var-table th:nth-child(3) { width: 6%; } #panel-bookmarks .var-table th:nth-child(5) { width: 30px; }
+#panel-bookmarks tr, #panel-tasks tr { cursor: pointer; }
+#panel-bookmarks tr:hover, #panel-tasks tbody tr:hover { background: var(--hover); }
+.bm-del { padding: 0 4px; opacity: .6; } .bm-del:hover { opacity: 1; }
+#panel-tasks .var-table th:nth-child(1) { width: 9%; } #panel-tasks .var-table th:nth-child(2) { width: 50%; } #panel-tasks .var-table th:nth-child(3) { width: 33%; }
+.tl-token { color: var(--accent); font-weight: 600; }
+#tlFilter { width: 220px; }
+.rf-dlg { width: min(560px, 94vw); }
+.rf-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; } .rf-row input { flex: 1; }
+.rf-opts { display: flex; gap: 16px; margin: 8px 0; font-size: 12px; } .rf-opts label { display: flex; gap: 4px; align-items: center; }
+.find-head { padding: 3px 0 5px; color: var(--fg-dim); border-bottom: 1px solid var(--border); margin-bottom: 3px; }
+#editorHost.with-side #editor, #editorHost.with-side .hc-bar { right: 45%; }
+.side-pane { position: absolute; top: 0; right: 0; bottom: 0; width: 45%; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--bg); z-index: 5; }
+.sp-head { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--bg3); border-bottom: 1px solid var(--border); font-size: 12px; }
+.sp-body { flex: 1; overflow: auto; padding: 10px 16px; }
+.md-body { line-height: 1.55; font-size: 14px; }
+.md-body h1, .md-body h2 { border-bottom: 1px solid var(--border); padding-bottom: .2em; }
+.md-body code { font: 12.5px Consolas, "Cascadia Mono", monospace; background: var(--bg3); padding: 1px 4px; border-radius: 3px; }
+.md-body pre.md-code { background: var(--bg2); padding: 8px 10px; border-radius: 4px; overflow: auto; }
+.md-body pre.md-code code { background: none; padding: 0; }
+.md-body table { border-collapse: collapse; } .md-body th, .md-body td { border: 1px solid var(--border); padding: 4px 8px; }
+.md-body blockquote { margin: 0; padding: 0 12px; border-left: 3px solid var(--border); color: var(--fg-dim); }
+.md-body a { color: var(--accent); cursor: pointer; } .md-body img { max-width: 100%; }
+.md-body li.md-task { list-style: none; margin-left: -1.2em; }
+.hc-bar { position: absolute; top: 4px; right: 22px; z-index: 6; display: flex; gap: 6px; align-items: center; }
+.hc-bar select, .hc-bar button { font-size: 12px; }
+.hc-body { padding: 8px 10px; font-size: 12px; }
+.hc-status { font-size: 13px; margin-bottom: 4px; } .hc-status span { color: var(--fg-dim); margin-left: 8px; }
+.hc-ok b { color: #3fb950; } .hc-redirect b { color: #d29922; } .hc-err, .hc-err b { color: #f85149; }
+.hc-req { font: 12px Consolas, monospace; color: var(--fg-dim); margin-bottom: 6px; word-break: break-all; }
+.hc-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+.hc-tabs button { padding: 3px 10px; border-bottom: 2px solid transparent; } .hc-tabs button.active { border-bottom-color: var(--accent); }
+.hc-view { font: 12px Consolas, "Cascadia Mono", monospace; white-space: pre-wrap; word-break: break-word; margin: 0; }
+table.hc-view th, table.hc-view td { white-space: normal; } table.hc-view td:first-child { width: 32%; color: var(--accent); }
+.hc-empty, .ch-empty { color: var(--fg-dim); padding: 12px; }
+.ch-row { display: flex; align-items: center; gap: 5px; padding: 2px 6px; cursor: pointer; font: 12px Consolas, monospace; white-space: nowrap; }
+.ch-row:hover { background: var(--hover); }
+.ch-twist { width: 12px; color: var(--fg-dim); } .ch-detail { color: var(--fg-dim); overflow: hidden; text-overflow: ellipsis; }
