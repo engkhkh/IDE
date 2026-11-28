@@ -23,6 +23,12 @@ const DEFAULTS = {
   syncGistId: '',           // Settings Sync: the secret gist that holds the settings
   syncGithubHost: 'github.com',
   debugInlineValues: true,  // show locals' values at the end of the lines while paused
+  gitSignCommits: false,    // git commit -S
+  gitSigningFormat: 'ssh',  // ssh | openpgp | x509
+  gitSigningKey: '',        // ssh: path of the public key; openpgp: key id; empty: git's own user.signingkey
+  ilspyPath: 'ilspycmd',    // decompiler (dotnet tool install -g ilspycmd)
+  efCommand: 'dotnet ef',   // EF Core tools (dotnet tool install -g dotnet-ef)
+  openVsxUrl: 'https://open-vsx.org',
   workspaceTrust: true,     // Restricted Mode for folders you haven't trusted
   localHistory: true,       // keep a copy of every save for 5 days
   vimMode: false,

@@ -89,6 +89,7 @@ async function pfStart({ cpu, alloc, target }) {
   PF.current = null; PF.selected = null; PF.expanded = new Set(PF.hot); PF.search = ''; $('#pfSearch').value = '';
   PF.tab = report.cpu ? 'cpu' : 'alloc';
   PF.view = 'functions';
+  PF.flameZoom = null;
   if (typeof dgRender === 'function') dgRender();
   if (report.cpu || report.alloc) { pfShowReport(); status(`Performance report: ${t.name}`); } else status(report.notes.join(' ') || 'No profile data');
   pfApplyHintsAll();
@@ -105,6 +106,7 @@ $('#dgProfile').onclick = () => pfShowDialog();
 function pfCompute() {
   const cpu = PF.report && PF.report.cpu;
   PF.model = null;
+  PF.flameZoom = null;
   PF.hot = new Set();
   if (!cpu) return;
   const fns = cpu.functions.map((f) => ({ ...f, self: cpu.stacks ? 0 : f.self || 0, total: cpu.stacks ? 0 : f.total || 0 }));
@@ -177,7 +179,7 @@ function pfRender() {
   const r = PF.report;
   if (!r) return;
   $$('#pfTabs button').forEach((b) => { b.classList.toggle('active', b.dataset.tab === PF.tab); b.disabled = b.dataset.tab === 'cpu' ? !r.cpu : !r.alloc; });
-  $$('#pfViews button').forEach((b) => { b.classList.toggle('active', b.dataset.view === PF.view); b.disabled = b.dataset.view === 'tree' && !(r.cpu && r.cpu.stacks); });
+  $$('#pfViews button').forEach((b) => { b.classList.toggle('active', b.dataset.view === PF.view); b.disabled = (b.dataset.view === 'tree' || b.dataset.view === 'flame') && !(r.cpu && r.cpu.stacks); });
   $('#pfViews').classList.toggle('hidden', PF.tab !== 'cpu');
   $('#pfJmc').checked = PF.jmc;
   $('#pfHints').classList.toggle('active', PF.hints);
@@ -197,8 +199,49 @@ function pfRender() {
   if (PF.tab === 'cpu' && m) {
     if (PF.view === 'functions') pfRenderFunctions(body);
     else if (PF.view === 'tree' && m.tree) pfRenderTree(body);
+    else if (PF.view === 'flame' && m.tree) pfRenderFlame(body);
     else pfRenderCallers(body);
   } else if (PF.tab === 'alloc' && r.alloc) pfRenderAlloc(body);
+}
+
+// Flame graph (top-down, like Passenger's "Where the time goes"): the width is the time; click a frame to zoom
+// into it, double-click to go to its code; the bar above returns to the whole program
+function pfFlameColor(fn) {
+  if (fn.ext || fn.framework) return 'hsl(220, 12%, 48%)';
+  let h = 0;
+  for (const ch of fn.name) h = (h * 31 + ch.charCodeAt(0)) % 997;
+  return `hsl(${10 + (h % 40)}, 78%, ${50 + (h % 12)}%)`;
+}
+function pfRenderFlame(body) {
+  const m = PF.model;
+  const zoom = PF.flameZoom && PF.flameZoom.t ? PF.flameZoom : m.tree;
+  const ROW = 20;
+  const wrap = h('div', { class: 'pf-flame' });
+  const bar = h('div', { class: 'pf-flame-bar' }, zoom === m.tree ? 'Whole program — click a frame to zoom, double-click to open its code' : `Zoomed: ${m.fns[zoom.f].name} (${pfMs(zoom.t)})  `);
+  if (zoom !== m.tree) { const b = h('button', {}, '⤺ Whole program'); b.onclick = () => { PF.flameZoom = null; pfRender(); }; bar.appendChild(b); }
+  wrap.appendChild(bar);
+  const area = h('div', { class: 'pf-flame-area' });
+  let maxDepth = 0;
+  const minPct = 0.15;
+  const place = (node, depth, left) => {
+    const pct = (node.t / zoom.t) * 100;
+    if (pct < minPct) return;
+    maxDepth = Math.max(maxDepth, depth);
+    if (node !== m.tree || zoom !== m.tree) {
+      const fn = node.f >= 0 ? m.fns[node.f] : { name: 'all', framework: true };
+      const d = h('div', { class: 'pf-flame-frame', title: `${fn.name}\n${pfMs(node.t)} total (${((node.t / m.total) * 100).toFixed(1)}% of the program), ${pfMs(node.s)} self` }, fn.name);
+      d.style.cssText = `left:${left}%;width:${pct}%;top:${depth * ROW}px;background:${pfFlameColor(fn)}`;
+      d.dataset.fn = fn.name;
+      d.onclick = (e) => { if (e.detail === 2) { if (node.f >= 0) pfGoTo(m.fns[node.f]); return; } PF.flameZoom = node; pfRender(); };
+      area.appendChild(d);
+    }
+    let x = left;
+    for (const c of [...node.c.values()].sort((a, b) => b.t - a.t)) { place(c, depth + (node === m.tree && zoom === m.tree ? 0 : 1), x); x += (c.t / zoom.t) * 100; }
+  };
+  place(zoom, 0, 0);
+  area.style.height = `${(maxDepth + 1) * ROW + 4}px`;
+  wrap.appendChild(area);
+  body.appendChild(wrap);
 }
 
 function pfHeader(cols, sort, onSort) {

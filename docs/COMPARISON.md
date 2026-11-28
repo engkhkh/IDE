@@ -1,6 +1,6 @@
 # Nova IDE next to Visual Studio 2026, JetBrains Rider and VS Code
 
-Written for Nova 0.21.0 and updated for 0.22.0, 0.23.0 and 0.24.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
+Written for Nova 0.21.0 and updated for 0.22.0–0.25.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
 (18.x, generally available since 11 Nov 2025), Rider 2025.3 and later, and VS Code with its usual C# Dev Kit / REST
 Client extensions. "Ext." means the feature comes from an extension rather than the box.
 
@@ -95,13 +95,13 @@ integration works through an MCP server. What it had that Nova lacked, and what 
 | Vim mode | ✅ **new** |
 | Project files: MSBuild completion and evaluated-property hovers | ✅ **new** |
 | Hot Reload while debugging | ❌ (Nova's Hot Reload runs without the debugger) |
-| Attach to anything, decompile libraries without symbols | ❌ |
+| Attach to anything, decompile libraries without symbols | ◐ attach to a process; decompiling **new in 0.25** (ilspycmd) |
 | XAML editing, XAML Preview, Live Visual Tree, XAML Hot Reload | ❌ |
 | .NET MAUI / Android / iOS on devices, Godot 4, Blazor WebAssembly, Aspire, debugging in containers | ❌ (need SDKs and devices) |
-| Live requests with their SQL, EF Core migrations | ❌ |
-| Reqnroll / SpecFlow | ❌ |
-| .resx / XLIFF editors | ❌ |
-| Partial commits, signed commits | ❌ |
-| Flame graphs, heap snapshot comparison | ◐ (heap snapshot diff yes; no flame graph) |
-| VS Code themes from Open VSX, screen-reader support | ❌ / ◐ |
+| Live requests with their SQL, EF Core migrations | ◐ EF Core migrations **new in 0.25**; no live request view |
+| Reqnroll / SpecFlow | ✅ **new in 0.25** (.feature files, step matching, F12, warnings) |
+| .resx / XLIFF editors | ◐ **new in 0.25**: .resx editor with culture columns (no XLIFF) |
+| Partial commits, signed commits | ✅ **new in 0.25** |
+| Flame graphs, heap snapshot comparison | ✅ (flame graph **new in 0.25**) |
+| VS Code themes from Open VSX, High Contrast, screen-reader support | ✅ themes + High Contrast **new in 0.25** / ◐ screen readers (Monaco's own support) |
 

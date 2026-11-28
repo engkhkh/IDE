@@ -3,7 +3,7 @@
 
 const SETTINGS_SCHEMA = [
   { group: 'Environment' },
-  { key: 'theme', label: 'Color theme', type: 'select', options: [['dark', 'Dark'], ['light', 'Light']] },
+  { key: 'theme', label: 'Color theme (Tools > Color Themes for more)', type: 'select', options: [['dark', 'Dark'], ['light', 'Light'], ['hc-dark', 'High Contrast Dark'], ['hc-light', 'High Contrast Light']] },
   { group: 'Text Editor' },
   { key: 'fontFamily', label: 'Font family', type: 'text' },
   { key: 'fontSize', label: 'Font size', type: 'number', min: 8, max: 40 },
@@ -16,6 +16,12 @@ const SETTINGS_SCHEMA = [
   { key: 'formatOnSave', label: 'Format document on save', type: 'bool' },
   { key: 'dockerPath', label: 'Containers: docker command (docker, podman, or a full path)', type: 'text', placeholder: 'docker' },
   { key: 'debugInlineValues', label: 'Debugging: show values at the end of the lines while paused', type: 'bool' },
+  { key: 'gitSignCommits', label: 'Git: sign commits', type: 'bool' },
+  { key: 'gitSigningFormat', label: 'Git: signing key type', type: 'select', options: [['ssh', 'SSH key'], ['openpgp', 'GPG (OpenPGP)'], ['x509', 'X.509 (gpgsm)']] },
+  { key: 'gitSigningKey', label: 'Git: signing key (SSH: path of the .pub file; GPG: key id; empty: git config user.signingkey)', type: 'text' },
+  { key: 'ilspyPath', label: 'Decompiler command (ilspycmd)', type: 'text', placeholder: 'ilspycmd' },
+  { key: 'efCommand', label: 'EF Core tools command', type: 'text', placeholder: 'dotnet ef' },
+  { key: 'openVsxUrl', label: 'Open VSX address (color themes)', type: 'text', placeholder: 'https://open-vsx.org' },
   { key: 'vimMode', label: 'Vim mode (normal / insert / visual, :w)', type: 'bool' },
   { key: 'localHistory', label: 'Local History: keep every save for 5 days', type: 'bool' },
   { key: 'workspaceTrust', label: 'Workspace Trust: ask before running code of a new folder', type: 'bool' },

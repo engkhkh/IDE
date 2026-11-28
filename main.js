@@ -198,6 +198,7 @@ const MENU = [
     { label: 'Containers', cmd: 'showContainers' },
     { label: 'Database Explorer', cmd: 'showDatabase' },
     { label: 'Local History (active file)', cmd: 'showLocalHistory' },
+    { label: 'EF Core Migrations', cmd: 'showEfCore' },
     { label: 'AI Chat', key: 'Ctrl+Alt+Shift+I', cmd: 'aiChat' },
     { label: 'Markdown Preview', key: 'Ctrl+Shift+V', cmd: 'markdownPreview', editor: true },
     '-',
@@ -318,6 +319,8 @@ const MENU = [
       { label: 'Explain', cmd: 'aiExplain' }, { label: 'Fix', cmd: 'aiFix' }, { label: 'Write Tests', cmd: 'aiTests' }, { label: 'Document', cmd: 'aiDocument' },
       '-', { label: 'New Chat', cmd: 'aiNewChat' }, { label: 'Provider and API Key...', cmd: 'aiSettings' }
     ] },
+    { label: 'Color Themes (High Contrast, VS Code themes)...', cmd: 'colorThemes' },
+    { label: 'Decompile Assembly...', cmd: 'decompileAssembly' },
     { label: 'Agents (MCP)', submenu: [
       { label: 'Turn the MCP Server On / Off', cmd: 'agentsToggleServer' },
       { label: 'Write .mcp.json for This Folder', cmd: 'agentsWriteMcpJson' },
@@ -617,7 +620,8 @@ const services = [
   require('./main/diagnostics'), require('./main/profiler'),
   require('./main/httpclient'), require('./main/spellcheck'), require('./main/endpoints'),
   require('./main/ai'), require('./main/containers'), require('./main/database'), require('./main/settingssync'),
-  require('./main/localhistory'), require('./main/trust'), require('./main/mcp'), require('./main/projectfiles')
+  require('./main/localhistory'), require('./main/trust'), require('./main/mcp'), require('./main/projectfiles'),
+  require('./main/themes'), require('./main/dotnettools')
 ];
 for (const s of services) s.register({ ipcMain: ipc, send, broadcast, ownerId, app, SKIP_DIRS, procPid: (id) => { const p = procs.get(id); return p ? p.child.pid : null; } });
 

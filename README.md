@@ -302,6 +302,29 @@ Features Visual Studio, Rider and VS Code all have, added after comparing them (
   (TargetFramework, OutputType, Nullable...), NuGet package ids and versions, project references; hovering a property
   or `$(Property)` shows the value MSBuild evaluates (`dotnet msbuild -getProperty`).
 
+## Partial commits, .resx, Reqnroll, flame graph, themes, decompiler, EF Core (Phase 25)
+- **Stage / Unstage Selected Lines**: in a Git diff, select lines on the right and click + Stage Selected Lines (or
+  − Unstage Selected Lines in a staged diff): only the changed blocks the selection touches go into (or out of) the
+  next commit.
+- **Signed commits** (Options > Source Control): sign every commit with an SSH key (the .pub file), a GPG key or
+  X.509 — `git commit -S` with the key you choose.
+- **.resx resource editor**: a grid of Name / Value / Comment over the XML (same document: Ctrl+S, Ctrl+Z), with a
+  column for each culture file next to it (Strings.de.resx...) showing what is missing; ＋ Add Resource, ✕ remove,
+  filter, View Code / ▦ Resource Designer.
+- **Reqnroll / SpecFlow**: `.feature` files get Gherkin colors; steps are matched to `[Given]` / `[When]` / `[Then]` /
+  `[StepDefinition]` bindings (Cucumber expressions `{int}` `{string}` `{word}` `{float}`, optional text `(s)`,
+  alternatives `a/b`, or regular expressions); unmatched steps are underlined; F12 goes to the binding; step texts
+  are completed.
+- **Flame Graph** in the Performance Profiler's CPU report: width = time, click to zoom, double-click to open the code.
+- **Color themes** (Tools > Color Themes): High Contrast Dark / Light, and VS Code color themes from Open VSX —
+  search, Install (the .vsix is read by Nova: its token colors color the editor, its workbench colors color Nova's
+  windows), Apply, Remove.
+- **Decompile Assembly** (Tools): pick a .dll, then a type: ILSpy's `ilspycmd` turns it into read-only C#. Nova offers
+  to install the tool (`dotnet tool install -g ilspycmd`).
+- **EF Core Migrations** window (View): the migrations of the project that uses Entity Framework Core — applied /
+  pending, ＋ Add Migration, Remove Last, ⬆ Update Database, Update to here (roll back), SQL Script (idempotent) —
+  through `dotnet ef` (Nova offers to install dotnet-ef).
+
 ## HTTP files (.http / .rest)
 Test web APIs without leaving the IDE, with the same file format as Visual Studio (also read by Rider and the VS Code
 REST Client):
@@ -445,6 +468,7 @@ main/database.js    Database Explorer: SQLite through sql.js
 main/settingssync.js Settings Sync through a GitHub Gist
 main/mcp.js         MCP server for coding agents (tools run in the renderer: renderer/agents.js)
 main/trust.js       Workspace Trust; main/localhistory.js Local History; main/projectfiles.js MSBuild evaluation
+main/themes.js      VS Code themes from Open VSX (.vsix reader); main/dotnettools.js ilspycmd + dotnet ef
 main/lsp/         language server client: connection (JSON-RPC), servers (registry), index (manager)
 preload.js        secure bridge -> window.ide
 renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, git.js, workspace.js,
@@ -464,7 +488,9 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   callhierarchy.js (call hierarchy + inline hints), splitview.js (second document group),
                   spellcheck.js, endpoints.js (Endpoints Explorer), ai.js (AI Chat), containers.js,
                   database.js (Database Explorer), settingssync.js, debuginline.js (values while paused),
-                  localhistory.js, vim.js, projectfiles.js, agents.js (MCP tools), trust.js (Restricted Mode)
+                  localhistory.js, vim.js, projectfiles.js, agents.js (MCP tools), monacofix.js, gitlines.js
+                  (line staging), themes.js, resx.js, gherkin.js (Reqnroll), decompile.js, efcore.js,
+                  trust.js (Restricted Mode)
 docs/             COMPARISON.md: Nova next to Visual Studio 2026, Rider and VS Code
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions

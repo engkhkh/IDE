@@ -80,8 +80,29 @@ module.exports = {
       if (untracked) return git(root, ['clean', '-f', '--', ...files]);
       return git(root, ['restore', '--', ...files]);
     });
-    ipcMain.handle('git:commit', (_e, root, message, opts = {}) =>
-      git(root, ['commit', ...(opts.all ? ['-a'] : []), ...(opts.amend ? ['--amend'] : []), '-m', message]));
+    // signed commits: SSH key (gpg.format=ssh), GPG key, or X.509 (gpgsm) — from Options > Source Control
+    ipcMain.handle('git:commit', async (_e, root, message, opts = {}) => {
+      const s = await require('./settings').read();
+      const sign = s.gitSignCommits ? [...(s.gitSigningFormat && s.gitSigningFormat !== 'openpgp' ? ['-c', `gpg.format=${s.gitSigningFormat}`] : []), ...(s.gitSigningKey ? ['-c', `user.signingkey=${s.gitSigningKey}`] : [])] : [];
+      return git(root, [...sign, 'commit', ...(s.gitSignCommits ? ['-S'] : []), ...(opts.all ? ['-a'] : []), ...(opts.amend ? ['--amend'] : []), '-m', message]);
+    });
+    // partial staging: write the chosen text as the file's index entry (stage / unstage selected lines)
+    ipcMain.handle('git:setIndex', async (_e, root, file, text) => {
+      const ls = await git(root, ['ls-files', '-s', '--', file]);
+      const mode = (ls.stdout.match(/^(\d{6}) /) || [])[1] || '100644';
+      const hash = await new Promise((resolve) => {
+        const p = require('child_process').execFile('git', ['hash-object', '-w', '--stdin', '--path', file], { cwd: root, windowsHide: true }, (err, stdout, stderr) => resolve(err ? { error: stderr || err.message } : { sha: stdout.trim() }));
+        p.stdin.end(text);
+      });
+      if (hash.error) return { ok: false, stderr: hash.error };
+      return git(root, ['update-index', '--add', '--cacheinfo', `${mode},${hash.sha},${toPosix(file)}`]);
+    });
+    // signature of a commit: G good, B bad, U good but unknown validity, N none...
+    ipcMain.handle('git:signature', async (_e, root, rev = 'HEAD') => {
+      const r = await git(root, ['log', '-1', '--format=%G?|%GS|%GK', rev]);
+      const [status, signer, key] = r.stdout.trim().split('|');
+      return { status: status || 'N', signer, key, ok: r.ok };
+    });
     ipcMain.handle('git:branches', async (_e, root) => {
       const r = await git(root, ['branch', '-a', '--format=%(HEAD)|%(refname:short)']);
       return r.stdout.split(/\r?\n/).filter(Boolean).map((l) => { const [h, name] = l.split('|'); return { name, current: h === '*', remote: name.includes('/') }; })

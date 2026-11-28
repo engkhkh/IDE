@@ -44,6 +44,8 @@ contextBridge.exposeInMainWorld('ide', {
   git: {
     status: invoke('git:status'),
     show: invoke('git:show'),
+    setIndex: invoke('git:setIndex'),
+    signature: invoke('git:signature'),
     stage: invoke('git:stage'),
     unstage: invoke('git:unstage'),
     discard: invoke('git:discard'),
@@ -120,6 +122,9 @@ contextBridge.exposeInMainWorld('ide', {
   trust: { get: invoke('trust:get'), set: invoke('trust:set'), list: invoke('trust:list') },
   mcp: { start: invoke('mcp:start'), stop: invoke('mcp:stop'), status: invoke('mcp:status'), folder: invoke('mcp:folder'), result: invoke('mcp:result') },
   msbuild: invoke('msbuild:evaluate'),
+  themes: { search: invoke('themes:search'), install: invoke('themes:install'), list: invoke('themes:list'), remove: invoke('themes:remove') },
+  ilspy: { types: invoke('ilspy:types'), decompile: invoke('ilspy:decompile') },
+  ef: { migrations: invoke('ef:migrations'), run: invoke('ef:run') },
 
   // app shell: command-line open, logs, About, updates
   app: {

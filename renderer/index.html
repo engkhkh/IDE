@@ -68,6 +68,10 @@
           <button id="hcSend" title="Send the request at the cursor (Ctrl+Alt+S)">▷ Send</button>
           <select id="hcEnv" title="Environment (http-client.env.json)"></select>
         </div>
+        <section id="resxView" class="resx-view hidden">
+          <div class="err-bar"><b id="rxTitle"></b><button id="rxAdd">＋ Add Resource</button><input id="rxFilter" placeholder="Filter" spellcheck="false"><span id="rxMsg" class="dlg-desc"></span><span class="tb-spacer"></span><button id="rxCode" title="Edit the XML">View Code</button></div>
+          <div class="rx-scroll"><table class="var-table rx-table"><thead id="rxHead"></thead><tbody id="rxBody"></tbody></table></div>
+        </section>
         <section id="svPane" class="sv-pane hidden">
           <div class="sv-head"><div id="sv-tabs" class="tabs"></div><span class="tb-spacer"></span><button id="svClose" title="Close the document group">✕</button></div>
           <div id="sv-editor"></div>
@@ -143,7 +147,7 @@
           <div class="gh-bar">
             <b id="pfTitle">Performance Report</b>
             <div id="pfTabs" class="pf-tabs"><button data-tab="cpu" class="active">CPU Usage</button><button data-tab="alloc">Allocations</button></div>
-            <div id="pfViews" class="pf-tabs"><button data-view="functions" class="active">Functions</button><button data-view="tree">Call Tree</button><button data-view="callers">Caller/Callee</button></div>
+            <div id="pfViews" class="pf-tabs"><button data-view="functions" class="active">Functions</button><button data-view="tree">Call Tree</button><button data-view="callers">Caller/Callee</button><button data-view="flame">Flame Graph</button></div>
             <input id="pfSearch" type="search" placeholder="Search functions" spellcheck="false">
             <label class="pf-check" title="Group framework and library code as [External Code]"><input id="pfJmc" type="checkbox" checked> Just My Code</label>
             <span class="tb-spacer"></span>
@@ -175,6 +179,7 @@
           <div class="diff-bar">
             <span id="diffTitle"></span>
             <span class="tb-spacer"></span>
+            <button id="diffStageLines" class="hidden" title="Stage only the changes your selection touches (right side)">+ Stage Selected Lines</button>
             <button id="diffInline" title="Toggle inline / side-by-side">⇆ Inline</button>
             <button id="diffOpen" title="Open file">Open File</button>
             <button id="diffClose" title="Close diff">✕</button>
@@ -274,6 +279,7 @@
       <button data-panel="containers">Containers</button>
       <button data-panel="database">Database</button>
       <button data-panel="history">Local History</button>
+      <button data-panel="efcore">EF Core</button>
       <span class="tab-sep"></span>
       <button data-panel="locals">Locals</button>
       <button data-panel="watch">Watch</button>
@@ -367,6 +373,12 @@
       <div class="err-bar"><b id="lhTitle"></b><span class="dlg-desc">  Compare shows the version next to the file; Restore puts it in the editor (Ctrl+Z undoes it)</span></div>
       <table class="var-table"><thead><tr><th>Saved</th><th></th><th>Size</th><th></th></tr></thead><tbody id="lhBody"></tbody></table>
     </div>
+    <div id="panel-efcore" class="panel dbg-panel">
+      <div class="err-bar">Project <select id="efProject"></select> Startup <select id="efStartup"></select>
+        <button id="efRefreshBtn" title="Refresh">⟳</button><button id="efAdd">＋ Add Migration</button><button id="efRemove">Remove Last</button><button id="efUpdate">⬆ Update Database</button><button id="efScript">SQL Script</button>
+        <span id="efMsg" class="dlg-desc"></span></div>
+      <table class="var-table"><thead><tr><th>State</th><th>Migration</th><th>Id</th><th></th></tr></thead><tbody id="efBody"></tbody></table>
+    </div>
     <div id="panel-locals" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="localsBody"></tbody></table></div>
     <div id="panel-watch" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="watchBody"></tbody></table></div>
     <div id="panel-callstack" class="panel dbg-panel"><table class="var-table"><thead><tr><th></th><th>Name</th><th>File</th><th>Line</th></tr></thead><tbody id="stackBody"></tbody></table></div>
@@ -392,6 +404,7 @@
     <span id="mdPreviewBtn" class="clickable hidden" title="Markdown preview (Ctrl+Shift+V)">👁 Preview</span>
     <span id="stEditorConfig" class="hidden" title="EditorConfig">⚙ EditorConfig</span>
     <span id="stVim" class="hidden st-vim"></span>
+    <span id="rxBackToGrid" class="clickable hidden" title="Back to the resource grid">▦ Resource Designer</span>
     <span id="stTrust" class="clickable hidden" title="This folder isn't trusted: its code doesn't run. Click to trust it.">🛡 Restricted Mode</span>
     <span id="stMcp" class="clickable hidden">🤖 MCP</span>
     <span id="stPos"></span>
@@ -435,6 +448,24 @@
 
   <!-- Debug > Performance Profiler -->
   <!-- Project > Configure Startup Projects (multiple startup projects) -->
+  <div id="thDlg" class="modal hidden">
+    <div class="modal-box th-dlg">
+      <div class="settings-head"><b>Color Themes</b><span class="tb-spacer"></span><button id="thClose">✕</button></div>
+      <div class="dlg-desc">Installed</div>
+      <div id="thInstalled" class="th-list"></div>
+      <div class="rf-row"><input id="thQuery" placeholder="Search VS Code themes on Open VSX (e.g. dracula, one dark, github)" spellcheck="false"><button id="thSearchBtn">Search</button></div>
+      <div id="thResults" class="th-list th-results"></div>
+    </div>
+  </div>
+
+  <div id="dcDlg" class="modal hidden">
+    <div class="modal-box th-dlg">
+      <div class="settings-head"><b id="dcTitle">Decompile</b><span class="tb-spacer"></span><button id="dcClose">✕</button></div>
+      <input id="dcFilter" placeholder="Type name" spellcheck="false">
+      <div id="dcList" class="th-list th-results"></div>
+    </div>
+  </div>
+
   <div id="trDlg" class="modal hidden">
     <div class="modal-box rf-dlg">
       <div class="settings-head"><b>Do you trust the authors of this folder?</b></div>
@@ -557,6 +588,13 @@
   <script src="vim.js"></script>
   <script src="projectfiles.js"></script>
   <script src="agents.js"></script>
+  <script src="monacofix.js"></script>
+  <script src="gitlines.js"></script>
+  <script src="themes.js"></script>
+  <script src="resx.js"></script>
+  <script src="gherkin.js"></script>
+  <script src="decompile.js"></script>
+  <script src="efcore.js"></script>
   <script src="trust.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>

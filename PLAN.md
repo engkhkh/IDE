@@ -242,3 +242,13 @@ kept stopping on SocketExceptions that the code handles (connect to every addres
 - [x] Tests: 5 unit tests (94 in all); 53 end-to-end checks; full packaged regression 719 checks (older suites run with NOVA_TRUST_ALL=1)
 - [ ] Not done (need SDKs, devices or a large subsystem): MAUI / mobile devices, Godot, Blazor WebAssembly, Aspire, XAML preview + Live Visual Tree, debugging in containers, decompiling without symbols, .resx editor, partial (line) commits, flame graphs, VS Code themes from Open VSX, screen-reader audit
 
+### Phase 25 — The rest of the Passenger gaps that can be done in Nova  ✅ (done)
+- [x] Partial commits: Stage / Unstage Selected Lines in the diff view (index entry rewritten with hash-object + update-index)
+- [x] Signed commits (SSH / GPG / X.509) from Options
+- [x] .resx editor (grid over the XML, culture columns), Reqnroll / SpecFlow .feature support (binding matching, F12, warnings, completion)
+- [x] Flame graph; High Contrast themes; VS Code themes from Open VSX (own .vsix reader, TextMate scopes mapped to Monaco tokens, workbench colors to Nova's)
+- [x] Decompiler (ilspycmd) and EF Core Migrations window (dotnet ef)
+- [x] Monaco fix: disposing a diff / merge editor broke later hovers and suggestion details (global hover delegate factory)
+- [x] Tests: 6 unit tests (100 in all); 38 end-to-end checks; full packaged regression 757 checks, all passing on the first run
+- [ ] Not possible in Nova as it is: Hot Reload while debugging (netcoredbg has no Edit and Continue), XAML preview / Live Visual Tree (needs the app's UI framework running inside the IDE), MAUI / Android / iOS devices, Godot, Blazor WebAssembly debugging (browser debug proxy), Aspire (DCP orchestration), debugging inside containers, live requests with their SQL
+
