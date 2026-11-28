@@ -1,6 +1,6 @@
 # Nova IDE next to Visual Studio 2026, JetBrains Rider and VS Code
 
-Written for Nova 0.21.0 and updated for 0.22.0 and 0.23.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
+Written for Nova 0.21.0 and updated for 0.22.0, 0.23.0 and 0.24.0 (November 2026). The other IDEs are compared at their current releases: Visual Studio 2026
 (18.x, generally available since 11 Nov 2025), Rider 2025.3 and later, and VS Code with its usual C# Dev Kit / REST
 Client extensions. "Ext." means the feature comes from an extension rather than the box.
 
@@ -78,3 +78,30 @@ Still missing after 0.23.0:
 
 0.22.0 added the split editor (document groups), split terminal, spell checker and Endpoints Explorer; 0.23.0 the AI
 Chat, Containers window, Database Explorer (SQLite) and Settings Sync.
+
+## Nova next to Passenger (added for 0.24.0)
+
+[Passenger](https://passenger-ide.net) is a free, open-source C# / .NET IDE (Windows, macOS, Linux) whose agent
+integration works through an MCP server. What it had that Nova lacked, and what 0.24.0 did about it:
+
+| Passenger | Nova 0.24 |
+|---|---|
+| An agent that drives the IDE (MCP: build, debug, test, see the windows) | ✅ **new**: MCP server with 10 tools, `.mcp.json` for the team |
+| Code that waits for your trust | ✅ **new**: Workspace Trust / Restricted Mode |
+| Values where you read them (line values, return values) | ✅ **new** (return values where the debugger reports them) |
+| Breakpoints: hit counts, log messages, Set Next Statement | ✅ **new** (hit counts / log messages also emulated for netcoredbg; Set Next Statement where the debugger supports goto) |
+| Local History (5 days) | ✅ **new** |
+| Live previews for HTML, Markdown, SVG | ✅ HTML and SVG **new** (Markdown since 0.21) |
+| Vim mode | ✅ **new** |
+| Project files: MSBuild completion and evaluated-property hovers | ✅ **new** |
+| Hot Reload while debugging | ❌ (Nova's Hot Reload runs without the debugger) |
+| Attach to anything, decompile libraries without symbols | ❌ |
+| XAML editing, XAML Preview, Live Visual Tree, XAML Hot Reload | ❌ |
+| .NET MAUI / Android / iOS on devices, Godot 4, Blazor WebAssembly, Aspire, debugging in containers | ❌ (need SDKs and devices) |
+| Live requests with their SQL, EF Core migrations | ❌ |
+| Reqnroll / SpecFlow | ❌ |
+| .resx / XLIFF editors | ❌ |
+| Partial commits, signed commits | ❌ |
+| Flame graphs, heap snapshot comparison | ◐ (heap snapshot diff yes; no flame graph) |
+| VS Code themes from Open VSX, screen-reader support | ❌ / ◐ |
+

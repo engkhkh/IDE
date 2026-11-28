@@ -175,7 +175,8 @@ const MENU = [
       { label: 'Uncomment Selection  (Ctrl+K, Ctrl+U)', cmd: 'uncommentLines' },
       { label: 'Toggle Line Comment', key: 'Ctrl+/', cmd: 'comment', editor: true },
       { label: 'Show/Hide Inline Hints  (Alt+F1)', cmd: 'toggleInlayHints' },
-      { label: 'Toggle Spell Checker', cmd: 'toggleSpellCheck' }
+      { label: 'Toggle Spell Checker', cmd: 'toggleSpellCheck' },
+      { label: 'Toggle Vim Mode', cmd: 'toggleVimMode' }
     ] },
     '-',
     { label: 'Go to Definition', key: 'F12', cmd: 'gotoDefinition', editor: true },
@@ -196,6 +197,7 @@ const MENU = [
     { label: 'Endpoints Explorer', cmd: 'showEndpoints' },
     { label: 'Containers', cmd: 'showContainers' },
     { label: 'Database Explorer', cmd: 'showDatabase' },
+    { label: 'Local History (active file)', cmd: 'showLocalHistory' },
     { label: 'AI Chat', key: 'Ctrl+Alt+Shift+I', cmd: 'aiChat' },
     { label: 'Markdown Preview', key: 'Ctrl+Shift+V', cmd: 'markdownPreview', editor: true },
     '-',
@@ -240,6 +242,8 @@ const MENU = [
     { label: 'Step Into', key: 'F11', cmd: 'debugStepInto' },
     { label: 'Step Out', key: 'Shift+F11', cmd: 'debugStepOut' },
     { label: 'Run to Cursor', key: 'Ctrl+F10', cmd: 'debugRunToCursor' },
+    { label: 'Set Next Statement', key: 'Ctrl+Shift+F10', cmd: 'debugSetNextStatement' },
+    { label: 'Breakpoint Settings (hit count, log message)...', cmd: 'breakpointSettings' },
     '-',
     { label: 'Toggle Breakpoint', key: 'F9', cmd: 'toggleBreakpoint' },
     { label: 'Add Conditional Breakpoint...', cmd: 'conditionalBreakpoint' },
@@ -314,6 +318,12 @@ const MENU = [
       { label: 'Explain', cmd: 'aiExplain' }, { label: 'Fix', cmd: 'aiFix' }, { label: 'Write Tests', cmd: 'aiTests' }, { label: 'Document', cmd: 'aiDocument' },
       '-', { label: 'New Chat', cmd: 'aiNewChat' }, { label: 'Provider and API Key...', cmd: 'aiSettings' }
     ] },
+    { label: 'Agents (MCP)', submenu: [
+      { label: 'Turn the MCP Server On / Off', cmd: 'agentsToggleServer' },
+      { label: 'Write .mcp.json for This Folder', cmd: 'agentsWriteMcpJson' },
+      { label: 'Copy the "claude mcp add" Command', cmd: 'agentsCopyClaudeCommand' }
+    ] },
+    { label: 'Workspace Trust', submenu: [{ label: 'Trust This Folder', cmd: 'trustFolder' }, { label: 'Restricted Mode for This Folder', cmd: 'untrustFolder' }] },
     { label: 'Settings Sync', submenu: [
       { label: 'Upload Settings (GitHub Gist)', cmd: 'syncUpload' }, { label: 'Download Settings (GitHub Gist)...', cmd: 'syncDownload' },
       '-', { label: 'Export Settings to File...', cmd: 'syncExport' }, { label: 'Import Settings from File...', cmd: 'syncImport' }
@@ -606,7 +616,8 @@ const services = [
   require('./main/workitems'),
   require('./main/diagnostics'), require('./main/profiler'),
   require('./main/httpclient'), require('./main/spellcheck'), require('./main/endpoints'),
-  require('./main/ai'), require('./main/containers'), require('./main/database'), require('./main/settingssync')
+  require('./main/ai'), require('./main/containers'), require('./main/database'), require('./main/settingssync'),
+  require('./main/localhistory'), require('./main/trust'), require('./main/mcp'), require('./main/projectfiles')
 ];
 for (const s of services) s.register({ ipcMain: ipc, send, broadcast, ownerId, app, SKIP_DIRS, procPid: (id) => { const p = procs.get(id); return p ? p.child.pid : null; } });
 

@@ -116,6 +116,10 @@ contextBridge.exposeInMainWorld('ide', {
   docker: { list: invoke('docker:list'), action: invoke('docker:action'), logs: invoke('docker:logs'), inspect: invoke('docker:inspect'), path: invoke('docker:path') },
   db: { schema: invoke('db:schema'), query: invoke('db:query'), create: invoke('db:create') },
   sync: { upload: invoke('sync:upload'), download: invoke('sync:download') },
+  history: { record: invoke('history:record'), list: invoke('history:list'), read: invoke('history:read') },
+  trust: { get: invoke('trust:get'), set: invoke('trust:set'), list: invoke('trust:list') },
+  mcp: { start: invoke('mcp:start'), stop: invoke('mcp:stop'), status: invoke('mcp:status'), folder: invoke('mcp:folder'), result: invoke('mcp:result') },
+  msbuild: invoke('msbuild:evaluate'),
 
   // app shell: command-line open, logs, About, updates
   app: {
@@ -224,7 +228,7 @@ contextBridge.exposeInMainWorld('ide', {
   },
 
   on: (channel, fn) => {
-    const allowed = ['menu', 'proc:data', 'proc:exit', 'app:beforeClose', 'term:data', 'term:exit', 'fs:changed', 'settings:changed', 'lsp:state', 'lsp:notification', 'lsp:serverRequest', 'lsp:log', 'dap:message', 'dap:closed', 'dap:log', 'dap:installProgress', 'app:openPath', 'update:status', 'tests:output', 'tests:done', 'tests:debugReady', 'diag:sample', 'ai:chunk', 'ai:done'];
+    const allowed = ['menu', 'proc:data', 'proc:exit', 'app:beforeClose', 'term:data', 'term:exit', 'fs:changed', 'settings:changed', 'lsp:state', 'lsp:notification', 'lsp:serverRequest', 'lsp:log', 'dap:message', 'dap:closed', 'dap:log', 'dap:installProgress', 'app:openPath', 'update:status', 'tests:output', 'tests:done', 'tests:debugReady', 'diag:sample', 'ai:chunk', 'ai:done', 'mcp:call'];
     if (allowed.includes(channel)) ipcRenderer.on(channel, (_e, payload) => fn(payload));
   }
 });

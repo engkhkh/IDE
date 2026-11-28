@@ -53,6 +53,7 @@
   <!-- Main workspace -->
   <main id="workspace">
     <section id="editorArea">
+      <div id="trustBar" class="trust-bar hidden">🛡 <b>Restricted Mode</b> — you haven't trusted this folder, so Nova won't build, run, debug or test its code. <button id="trBarTrust">Trust Folder...</button></div>
       <div id="tabs"></div>
       <div id="editorHost">
         <div id="welcome">
@@ -272,6 +273,7 @@
       <button data-panel="endpoints">Endpoints</button>
       <button data-panel="containers">Containers</button>
       <button data-panel="database">Database</button>
+      <button data-panel="history">Local History</button>
       <span class="tab-sep"></span>
       <button data-panel="locals">Locals</button>
       <button data-panel="watch">Watch</button>
@@ -361,6 +363,10 @@
         </div>
       </div>
     </div>
+    <div id="panel-history" class="panel dbg-panel">
+      <div class="err-bar"><b id="lhTitle"></b><span class="dlg-desc">  Compare shows the version next to the file; Restore puts it in the editor (Ctrl+Z undoes it)</span></div>
+      <table class="var-table"><thead><tr><th>Saved</th><th></th><th>Size</th><th></th></tr></thead><tbody id="lhBody"></tbody></table>
+    </div>
     <div id="panel-locals" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="localsBody"></tbody></table></div>
     <div id="panel-watch" class="panel dbg-panel"><table class="var-table"><thead><tr><th>Name</th><th>Value</th><th>Type</th></tr></thead><tbody id="watchBody"></tbody></table></div>
     <div id="panel-callstack" class="panel dbg-panel"><table class="var-table"><thead><tr><th></th><th>Name</th><th>File</th><th>Line</th></tr></thead><tbody id="stackBody"></tbody></table></div>
@@ -385,6 +391,9 @@
     <span id="stBranch" class="clickable hidden" title="Switch branch"></span>
     <span id="mdPreviewBtn" class="clickable hidden" title="Markdown preview (Ctrl+Shift+V)">👁 Preview</span>
     <span id="stEditorConfig" class="hidden" title="EditorConfig">⚙ EditorConfig</span>
+    <span id="stVim" class="hidden st-vim"></span>
+    <span id="stTrust" class="clickable hidden" title="This folder isn't trusted: its code doesn't run. Click to trust it.">🛡 Restricted Mode</span>
+    <span id="stMcp" class="clickable hidden">🤖 MCP</span>
     <span id="stPos"></span>
     <span id="stLang"></span>
     <span>UTF-8</span>
@@ -426,6 +435,25 @@
 
   <!-- Debug > Performance Profiler -->
   <!-- Project > Configure Startup Projects (multiple startup projects) -->
+  <div id="trDlg" class="modal hidden">
+    <div class="modal-box rf-dlg">
+      <div class="settings-head"><b>Do you trust the authors of this folder?</b></div>
+      <p><span id="trWhat"></span>Building, running, debugging or testing a project runs its code — MSBuild targets, scripts, the program itself — with your permissions.</p>
+      <p class="dlg-desc" id="trFolder"></p>
+      <div class="modal-actions"><span class="tb-spacer"></span><button id="trYes" class="primary">Trust Folder and Continue</button><button id="trNo">Don't Trust (Restricted Mode)</button></div>
+    </div>
+  </div>
+
+  <div id="bpsDlg" class="modal hidden">
+    <div class="modal-box rf-dlg">
+      <div class="settings-head"><b id="bpsTitle">Breakpoint Settings</b></div>
+      <label class="rf-row">Condition <input id="bpsCond" spellcheck="false" placeholder="stop when true, e.g. i > 10"></label>
+      <label class="rf-row">Hit count <input id="bpsHit" spellcheck="false" placeholder="5 (the 5th hit), >= 5, % 5 (every 5th)"></label>
+      <label class="rf-row">Log message <input id="bpsLog" spellcheck="false" placeholder="i = {i}, total {total}  (a tracepoint: logs and continues)"></label>
+      <div class="modal-actions"><span class="tb-spacer"></span><button id="bpsSave" class="primary">Save</button><button id="bpsCancel">Cancel</button></div>
+    </div>
+  </div>
+
   <div id="aiDlg" class="modal hidden">
     <div class="modal-box rf-dlg">
       <div class="settings-head"><b>AI Chat: provider</b></div>
@@ -524,6 +552,12 @@
   <script src="containers.js"></script>
   <script src="database.js"></script>
   <script src="settingssync.js"></script>
+  <script src="debuginline.js"></script>
+  <script src="localhistory.js"></script>
+  <script src="vim.js"></script>
+  <script src="projectfiles.js"></script>
+  <script src="agents.js"></script>
+  <script src="trust.js"></script>
   <script src="extensions.js"></script>
   <script src="app.js"></script>
 </body>

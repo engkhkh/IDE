@@ -22,6 +22,12 @@ const DEFAULTS = {
   dockerPath: 'docker',     // Containers window: the docker CLI (or podman)
   syncGistId: '',           // Settings Sync: the secret gist that holds the settings
   syncGithubHost: 'github.com',
+  debugInlineValues: true,  // show locals' values at the end of the lines while paused
+  workspaceTrust: true,     // Restricted Mode for folders you haven't trusted
+  localHistory: true,       // keep a copy of every save for 5 days
+  vimMode: false,
+  mcpServer: false,         // MCP server for coding agents (Claude Code, Codex...)
+  mcpPort: 7811,
   spellCheck: true,         // spelling in comments, strings and text files
   inlayHints: false,        // inline parameter name / type hints from the language server (VS: off until Alt+F1)
   taskListTokens: 'TODO, HACK, UNDONE, FIXME', // comment tokens listed in the Task List

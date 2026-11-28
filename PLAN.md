@@ -233,3 +233,12 @@ kept stopping on SocketExceptions that the code handles (connect to every addres
 - [x] Tests: 4 unit tests (89 in all); 42 end-to-end checks against stand-ins (AI APIs, docker CLI, GitHub Gists); full packaged regression: 666 checks
 - [ ] Not done (needs a service or a large subsystem): remote development (SSH / WSL), Live Share, inline AI completions, SQL Server / PostgreSQL
 
+### Phase 24 — Gaps found by comparing with Passenger (passenger-ide.net)  ✅ (done)
+- [x] MCP server for coding agents (Streamable HTTP on 127.0.0.1, Origin check): 10 tools running in the IDE; .mcp.json for the team
+- [x] Workspace Trust / Restricted Mode: build, run, debug, tests, Hot Reload, profiler, Docker, .http and agent actions wait for trust
+- [x] Debugger: inline values while paused, return values (debugpy showReturnValue), hit counts + tracepoints (native or emulated), Set Next Statement (gotoTargets)
+- [x] Local History (5 days, compare in the diff view, restore)
+- [x] HTML (sandboxed frame) and SVG live preview; Vim mode (monaco-vim); .csproj completion + evaluated-property hovers
+- [x] Tests: 5 unit tests (94 in all); 53 end-to-end checks; full packaged regression 719 checks (older suites run with NOVA_TRUST_ALL=1)
+- [ ] Not done (need SDKs, devices or a large subsystem): MAUI / mobile devices, Godot, Blazor WebAssembly, Aspire, XAML preview + Live Visual Tree, debugging in containers, decompiling without symbols, .resx editor, partial (line) commits, flame graphs, VS Code themes from Open VSX, screen-reader audit
+

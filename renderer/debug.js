@@ -132,7 +132,7 @@ async function resolveLaunchConfig({ stopAtEntry }) {
     const program = pyFile || await firstExisting(['main.py', 'app.py', '__main__.py']);
     if (!program) return { error: 'Open the Python file you want to debug.' };
     const s = state.settings;
-    return { name: baseName(program), config: { type: 'python', request: 'launch', program, cwd: state.root || dirName(program), console: 'internalConsole', justMyCode: true, stopOnEntry: !!stopAtEntry, ...(s.pythonPath ? { python: s.pythonPath } : {}) } };
+    return { name: baseName(program), config: { type: 'python', request: 'launch', program, cwd: state.root || dirName(program), console: 'internalConsole', justMyCode: true, showReturnValue: true, stopOnEntry: !!stopAtEntry, ...(s.pythonPath ? { python: s.pythonPath } : {}) } };
   }
   // 4) Node.js
   const jsFile = ['js', 'mjs', 'cjs'].includes(e) ? file : null;
@@ -388,6 +388,8 @@ async function onStopped(s, b) {
   if (DBG.tempBp) { const t = DBG.tempBp; DBG.tempBp = null; for (const x of DBG.sessions.values()) if (x.configured) sendBreakpoints(x, t.path); }
   // .NET exceptions that only pass into an async method's Task: log and continue (like Visual Studio)
   if (b.reason === 'exception' && await dbgSkipAsyncException(s, b)) return;
+  // hit counts and log messages the debug adapter can't do itself: Nova counts / logs and continues
+  if (b.reason === 'breakpoint' && await dbgEmulateBreakpoint(s, b)) return;
   const reason = b.reason === 'exception' ? 'Exception thrown' : b.reason === 'breakpoint' ? 'Breakpoint hit' : b.reason === 'step' ? 'Step' : b.reason === 'entry' ? 'Stopped at entry' : `Paused (${b.reason})`;
   status(`${DBG.sessions.size > 1 && s.name && (s.peer || [...DBG.sessions.values()].some((x) => x.peer)) ? `[${s.name}] ` : ''}${reason}${b.description && b.reason !== 'breakpoint' && b.reason !== 'step' ? `: ${b.description}` : ''}`);
   if (b.reason === 'exception') await showException(s, b);
@@ -705,8 +707,8 @@ function decorate(path) {
   const items = e ? e.items : [];
   const old = tab.bpDecos || [];
   const decos = items.map((b) => {
-    const cls = !b.enabled ? 'bp-glyph-disabled' : b.verified === false ? 'bp-glyph-unverified' : b.condition ? 'bp-glyph-cond' : 'bp-glyph';
-    const hover = `Breakpoint${b.condition ? `\nCondition: ${b.condition}` : ''}${!b.enabled ? ' (disabled)' : b.verified === false ? `\n${b.message || 'Not bound yet (no code loaded for this line)'}` : ''}`;
+    const cls = !b.enabled ? 'bp-glyph-disabled' : b.verified === false ? 'bp-glyph-unverified' : b.logMessage ? 'bp-glyph-log' : b.condition || b.hitCondition ? 'bp-glyph-cond' : 'bp-glyph';
+    const hover = `${b.logMessage ? 'Tracepoint' : 'Breakpoint'}${b.condition ? `\nCondition: ${b.condition}` : ''}${b.hitCondition ? `\nHit count: ${b.hitCondition}` : ''}${b.logMessage ? `\nLog: ${b.logMessage}` : ''}${!b.enabled ? ' (disabled)' : b.verified === false ? `\n${b.message || 'Not bound yet (no code loaded for this line)'}` : ''}`;
     return { range: new monacoRef.Range(b.line, 1, b.line, 1), options: { glyphMarginClassName: cls, glyphMarginHoverMessage: { value: hover }, stickiness: 1, className: b.enabled ? 'bp-line' : undefined, isWholeLine: b.enabled } };
   });
   tab.bpDecos = tab.model.deltaDecorations(old, decos);
@@ -716,12 +718,12 @@ function redecorateAll() { for (const t of state.tabs) decorate(t.path); }
 
 function saveBreakpoints() {
   const list = [];
-  for (const e of DBG.bps.values()) { syncLines(e.path); for (const b of e.items) list.push({ path: e.path, line: b.line, condition: b.condition || '', enabled: b.enabled }); }
+  for (const e of DBG.bps.values()) { syncLines(e.path); for (const b of e.items) list.push({ path: e.path, line: b.line, condition: b.condition || '', hitCondition: b.hitCondition || '', logMessage: b.logMessage || '', enabled: b.enabled }); }
   store(`bps:${state.root || ''}`, list);
 }
 function loadBreakpoints() {
   DBG.bps.clear();
-  for (const b of load(`bps:${state.root || ''}`, [])) bpEntry(b.path, true).items.push({ line: b.line, condition: b.condition, enabled: b.enabled !== false });
+  for (const b of load(`bps:${state.root || ''}`, [])) bpEntry(b.path, true).items.push({ line: b.line, condition: b.condition, hitCondition: b.hitCondition || '', logMessage: b.logMessage || '', enabled: b.enabled !== false });
   redecorateAll();
   renderBreakpoints();
 }
@@ -731,7 +733,12 @@ async function sendBreakpoints(s, path) {
   syncLines(path);
   const e = bpEntry(path);
   const items = e ? e.items.filter((b) => b.enabled) : [];
-  const req = items.map((b) => ({ line: b.line, condition: b.condition || undefined }));
+  const caps = s.caps || {};
+  const req = items.map((b) => ({
+    line: b.line, condition: b.condition || undefined,
+    hitCondition: b.hitCondition && caps.supportsHitConditionalBreakpoints ? dbgHitForAdapter(b.hitCondition, s) : undefined,
+    logMessage: b.logMessage && caps.supportsLogPoints ? b.logMessage : undefined
+  }));
   if (DBG.tempBp && normPathKey(DBG.tempBp.path) === normPathKey(path) && !items.some((b) => b.line === DBG.tempBp.line)) req.push({ line: DBG.tempBp.line });
   try {
     const res = await s.request('setBreakpoints', { source: { path, name: baseName(path) }, breakpoints: req, lines: req.map((b) => b.line), sourceModified: false });
@@ -780,6 +787,92 @@ function toggleBreakpoint(path, line) {
   breakpointsChanged(path);
 }
 
+// ---------------- hit counts and tracepoints ----------------
+// Visual Studio's hit count forms: "5" / "= 5" (the 5th hit), ">= 5", "% 5" (every 5th)
+function dbgHitMatches(cond, n) {
+  const m = String(cond || '').trim().match(/^(>=|=|==|%)?\s*(\d+)$/);
+  if (!m) return true;
+  const k = +m[2];
+  return m[1] === '>=' ? n >= k : m[1] === '%' ? k > 0 && n % k === 0 : n === k;
+}
+// what the adapter expects: js-debug and debugpy take ">= 5" / "% 5" / "5" (equals)
+const dbgHitForAdapter = (cond) => String(cond).trim().replace(/^==?\s*/, '');
+// "x = {x}, total {a + b}" -> evaluate the {expressions} in the stopped frame
+async function dbgFormatLog(s, msg, frameId) {
+  const parts = [];
+  let last = 0;
+  for (const m of msg.matchAll(/\{([^{}]+)\}/g)) {
+    parts.push(msg.slice(last, m.index));
+    let v;
+    try { v = (await s.request('evaluate', { expression: m[1], frameId, context: 'watch' })).result; } catch (e) { v = `<${e.message}>`; }
+    parts.push(v);
+    last = m.index + m[0].length;
+  }
+  parts.push(msg.slice(last));
+  return parts.join('');
+}
+async function dbgEmulateBreakpoint(s, b) {
+  const caps = s.caps || {};
+  let top;
+  try { top = ((await s.request('stackTrace', { threadId: b.threadId ?? DBG.threadId, startFrame: 0, levels: 1 })).stackFrames || [])[0]; } catch { return false; }
+  if (!top || !top.source || !top.source.path) return false;
+  const e = bpEntry(top.source.path);
+  const bp = e && e.items.find((x) => x.enabled && x.line === top.line);
+  if (!bp) return false;
+  const emHit = bp.hitCondition && !caps.supportsHitConditionalBreakpoints;
+  const emLog = bp.logMessage && !caps.supportsLogPoints;
+  if (!emHit && !emLog) return false;
+  if (emHit) {
+    bp.hits = (bp.hits || 0) + 1;
+    if (!dbgHitMatches(bp.hitCondition, bp.hits)) { DBG.stopped = false; try { await s.request('continue', { threadId: b.threadId ?? DBG.threadId }); } catch {} return true; }
+  }
+  if (emLog) {
+    log(`${await dbgFormatLog(s, bp.logMessage, top.id)}\n`);
+    DBG.stopped = false;
+    try { await s.request('continue', { threadId: b.threadId ?? DBG.threadId }); } catch {}
+    return true;
+  }
+  return false;
+}
+bus.on('debugStarted', () => { for (const e of DBG.bps.values()) for (const b of e.items) b.hits = 0; });
+
+// Breakpoint Settings (like Visual Studio's): condition, hit count, and a message to log (a tracepoint continues)
+function editBreakpointSettings(path, line) {
+  syncLines(path);
+  const e = bpEntry(path, true);
+  const b = e.items.find((x) => x.line === line) || {};
+  $('#bpsTitle').textContent = `Breakpoint Settings — ${baseName(path)}, line ${line}`;
+  $('#bpsCond').value = b.condition || '';
+  $('#bpsHit').value = b.hitCondition || '';
+  $('#bpsLog').value = b.logMessage || '';
+  $('#bpsDlg').classList.remove('hidden');
+  setTimeout(() => focusIfIdle($('#bpsCond')), 30);
+  $('#bpsSave').onclick = () => {
+    let x = e.items.find((y) => y.line === line);
+    if (!x) { x = { line, condition: '', enabled: true }; e.items.push(x); e.items.sort((p, q) => p.line - q.line); }
+    x.condition = $('#bpsCond').value.trim();
+    x.hitCondition = $('#bpsHit').value.trim();
+    x.logMessage = $('#bpsLog').value;
+    x.hits = 0;
+    $('#bpsDlg').classList.add('hidden');
+    breakpointsChanged(path);
+  };
+}
+$('#bpsCancel').onclick = () => $('#bpsDlg').classList.add('hidden');
+
+// Set Next Statement (Ctrl+Shift+F10): the adapter's gotoTargets + goto
+async function setNextStatement(path, line) {
+  const s = DBG.focus;
+  if (!s || !DBG.stopped) return status('Set Next Statement works while the program is paused');
+  if (!s.caps || !s.caps.supportsGotoTargetsRequest) return status(`This debugger (${s.type}) can't move the next statement`);
+  try {
+    const t = ((await s.request('gotoTargets', { source: { path, name: baseName(path) }, line })).targets || [])[0];
+    if (!t) return status(`Line ${line} can't be the next statement`);
+    await s.request('goto', { threadId: DBG.threadId, targetId: t.id });
+    return true;
+  } catch (e) { status(`Set Next Statement: ${e.message}`); return false; }
+}
+
 async function editCondition(path, line) {
   syncLines(path);
   const e = bpEntry(path, true);
@@ -806,8 +899,8 @@ function renderBreakpoints() {
       tr.children[1].innerHTML = `<span class="${!b.enabled ? 'bp-dot off' : b.verified === false ? 'bp-dot unverified' : 'bp-dot'}"></span>`;
       tr.children[1].appendChild(document.createTextNode(`${baseName(e.path)}, line ${b.line}`));
       tr.children[1].title = e.path;
-      tr.children[2].textContent = b.condition ? `when ${b.condition}` : '';
-      tr.children[2].ondblclick = () => editCondition(e.path, b.line);
+      tr.children[2].textContent = [b.condition ? `when ${b.condition}` : '', b.hitCondition ? `hit count ${b.hitCondition}` : '', b.logMessage ? `log "${b.logMessage}"` : ''].filter(Boolean).join(', ');
+      tr.children[2].ondblclick = () => editBreakpointSettings(e.path, b.line);
       const del = document.createElement('button');
       del.className = 'git-mini'; del.textContent = '✕'; del.title = 'Delete';
       del.onclick = (ev) => { ev.stopPropagation(); toggleBreakpoint(e.path, b.line); };
@@ -841,8 +934,11 @@ bus.on('ready', () => {
     const item = (label, fn) => { const d = document.createElement('div'); d.textContent = label; d.onclick = () => { menu.classList.add('hidden'); fn(); }; menu.appendChild(d); };
     item(b ? 'Delete Breakpoint' : 'Insert Breakpoint', () => toggleBreakpoint(path, line));
     item(b && b.condition ? 'Edit Condition...' : 'Conditional Breakpoint...', () => editCondition(path, line));
+    item('Breakpoint Settings... (hit count, log message)', () => editBreakpointSettings(path, line));
+    if (!b) item('Insert Tracepoint...', () => editBreakpointSettings(path, line));
     if (b) item(b.enabled ? 'Disable Breakpoint' : 'Enable Breakpoint', () => { b.enabled = !b.enabled; breakpointsChanged(path); });
     if (DBG.stopped) item('Run to Cursor', () => runToCursor(path, line));
+    if (DBG.stopped) item('Set Next Statement', () => setNextStatement(path, line));
     menu.style.left = `${e.event.posx}px`; menu.style.top = `${e.event.posy}px`;
     menu.classList.remove('hidden');
   });
@@ -945,6 +1041,8 @@ Object.assign(commands, {
   },
   stop: () => (DBG.root ? stopDebugging() : stopProcess()),
   toggleBreakpoint: () => { if (state.active && editor) toggleBreakpoint(state.active.path, editor.getPosition().lineNumber); },
+  debugSetNextStatement: () => { if (state.active && editor) setNextStatement(state.active.path, editor.getPosition().lineNumber); },
+  breakpointSettings: () => { if (state.active && editor) editBreakpointSettings(state.active.path, editor.getPosition().lineNumber); },
   conditionalBreakpoint: () => { if (state.active && editor) editCondition(state.active.path, editor.getPosition().lineNumber); },
   deleteAllBreakpoints: () => {
     const paths = [...DBG.bps.values()].map((e) => e.path);
@@ -980,6 +1078,7 @@ Object.assign(commands, {
 bus.on('ready', () => {
   editor.addAction({ id: 'nova.addWatch', label: 'Add Watch', contextMenuGroupId: '9_debug', run: () => commands.addWatchFromEditor() });
   editor.addAction({ id: 'nova.toggleBp', label: 'Toggle Breakpoint', contextMenuGroupId: '9_debug', run: () => commands.toggleBreakpoint() });
+  editor.addAction({ id: 'nova.setNextStatement', label: 'Set Next Statement', contextMenuGroupId: '9_debug', run: () => commands.debugSetNextStatement() });
   editor.addAction({ id: 'nova.runToCursor', label: 'Run to Cursor', contextMenuGroupId: '9_debug', precondition: undefined, run: () => commands.debugRunToCursor() });
   renderWatches(true);
   updateDebugUI();

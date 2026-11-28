@@ -129,6 +129,22 @@ async function mdRefresh() {
   const tab = SP.tab;
   if (SP.owner !== 'md' || !tab) return;
   const body = $('#spBody');
+  // HTML: the page in a sandboxed frame (scripts run, but can't reach Nova); SVG: as a picture
+  if (/\.(html?|svg)$/i.test(tab.path)) {
+    body.className = 'sp-body sp-frame';
+    const dir = `file:///${dirName(tab.path).replace(/\\/g, '/').replace(/^\/+/, '')}/`;
+    if (/\.svg$/i.test(tab.path)) {
+      const svg = tab.model.getValue();
+      body.innerHTML = '<div class="svg-preview"><img alt="SVG preview"></div>';
+      body.querySelector('img').src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+      return;
+    }
+    let frame = body.querySelector('iframe');
+    if (!frame) { body.innerHTML = '<iframe sandbox="allow-scripts allow-forms" title="HTML preview"></iframe>'; frame = body.querySelector('iframe'); }
+    const html = tab.model.getValue();
+    frame.srcdoc = /<base\s/i.test(html) ? html : html.replace(/<head([^>]*)>/i, `<head$1><base href="${dir}">`).replace(/^(?![\s\S]*<head)/, `<base href="${dir}">`);
+    return;
+  }
   const top = body.scrollTop;
   body.className = 'sp-body md-body';
   body.innerHTML = mdRender(tab.model.getValue());
@@ -155,9 +171,9 @@ async function mdRefresh() {
     try { pre.firstChild.innerHTML = await monacoRef.editor.colorize(pre.textContent, lang, { tabSize: 4 }); } catch {}
   }
 }
-const mdIsMarkdown = (tab) => tab && /\.(md|markdown|mdx)$/i.test(tab.path);
+const mdIsMarkdown = (tab) => tab && /\.(md|markdown|mdx|html?|svg)$/i.test(tab.path);
 function mdToggle(tab = state.active) {
-  if (!mdIsMarkdown(tab)) return status('Markdown preview: open a .md file first');
+  if (!mdIsMarkdown(tab)) return status('Preview: open a Markdown, HTML or SVG file first');
   if (SP.owner === 'md' && SP.tab === tab) { spClose(); return; }
   tab.mdPreview = true;
   spOpen('md', tab, `Preview: ${baseName(tab.path)}`);

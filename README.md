@@ -276,6 +276,32 @@ Features Visual Studio, Rider and VS Code all have, added after comparing them (
   scope); Download on another PC applies them and installs the extensions it can. Export / Import a file does the
   same without GitHub.
 
+## Agents, Workspace Trust, debugger values, Local History (Phase 24, ideas from Passenger)
+- **Agents (MCP server)** — Tools > Agents, or Options > Agents: Nova runs an MCP server on `127.0.0.1:7811/mcp`
+  (Streamable HTTP; a web page can't call it). Coding agents — Claude Code, Codex, OpenCode, Cursor — then work
+  through the IDE: `get_workspace`, `get_editor_text` (with unsaved changes), `open_file`, `get_diagnostics` (the
+  Error List), `build`, `run_tests`, `find_symbol`, `set_breakpoint`, `debug` (start / step / continue / stop / state
+  with locals) and `screenshot`. "Write .mcp.json" adds the server to the folder for the whole team; "Copy the
+  claude mcp add command" for your own Claude Code. 🤖 MCP in the status bar while it runs.
+- **Workspace Trust** — a folder you haven't trusted opens in Restricted Mode: you can read and edit, but building,
+  running, debugging, tests, Hot Reload, the profiler, Docker builds, .http requests and agent builds first ask
+  "Do you trust the authors of this folder?". Trusting a folder trusts its subfolders (Tools > Workspace Trust).
+- **Debugger**: values where you read them — while paused, the lines of the current method show the locals they use
+  at the line end, and a function's return value shows at the call after stepping out (Python; C# where netcoredbg
+  reports it). **Breakpoint Settings** (right-click the breakpoint, or Debug > Breakpoint Settings): hit count
+  (`5`, `>= 5`, `% 5`) and a **log message** (`i = {i}`: a tracepoint, ◆, logs and continues) — handed to the
+  debugger when it supports them, otherwise Nova counts and logs itself (netcoredbg). **Set Next Statement**
+  (Ctrl+Shift+F10) where the debugger supports it (Python).
+- **Local History** (View > Local History): every save of every file is kept for 5 days (also files Git doesn't
+  track); Compare shows a version beside the file, Restore puts it back (Ctrl+Z undoes it).
+- **Live preview** of HTML (in a sandboxed frame: scripts run but can't reach Nova) and SVG, next to Markdown (👁 Preview,
+  Ctrl+Shift+V).
+- **Vim mode** (Options > Text Editor, Edit > Advanced > Toggle Vim Mode): normal / insert / visual / command line;
+  `:w`, `:q`, `:wq`.
+- **Project files**: in .csproj / .props / .targets, completion of MSBuild properties and items, their values
+  (TargetFramework, OutputType, Nullable...), NuGet package ids and versions, project references; hovering a property
+  or `$(Property)` shows the value MSBuild evaluates (`dotnet msbuild -getProperty`).
+
 ## HTTP files (.http / .rest)
 Test web APIs without leaving the IDE, with the same file format as Visual Studio (also read by Rider and the VS Code
 REST Client):
@@ -417,6 +443,8 @@ main/ai.js          AI Chat: Anthropic / OpenAI-compatible / Ollama streaming, k
 main/containers.js  Containers window (docker CLI)
 main/database.js    Database Explorer: SQLite through sql.js
 main/settingssync.js Settings Sync through a GitHub Gist
+main/mcp.js         MCP server for coding agents (tools run in the renderer: renderer/agents.js)
+main/trust.js       Workspace Trust; main/localhistory.js Local History; main/projectfiles.js MSBuild evaluation
 main/lsp/         language server client: connection (JSON-RPC), servers (registry), index (manager)
 preload.js        secure bridge -> window.ide
 renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, git.js, workspace.js,
@@ -435,7 +463,8 @@ renderer/         renderer.js (core UI), settings.js, terminal.js, palette.js, g
                   markdown.js (Markdown preview + side pane), httpclient.js (.http files),
                   callhierarchy.js (call hierarchy + inline hints), splitview.js (second document group),
                   spellcheck.js, endpoints.js (Endpoints Explorer), ai.js (AI Chat), containers.js,
-                  database.js (Database Explorer), settingssync.js
+                  database.js (Database Explorer), settingssync.js, debuginline.js (values while paused),
+                  localhistory.js, vim.js, projectfiles.js, agents.js (MCP tools), trust.js (Restricted Mode)
 docs/             COMPARISON.md: Nova next to Visual Studio 2026, Rider and VS Code
 build/            installer icon and installer.nsh (Open with / folder menu registry entries)
 samples/          HelloNova sample project and sample extensions
